@@ -1,0 +1,29 @@
+package com.bms.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.bms.mapper.AwardMapper;
+import com.bms.model.AwardModel;
+
+
+
+@Service
+public class AwardService {
+
+	@Autowired
+	private AwardMapper awardMapper;
+
+	@Transactional
+	public List<AwardModel> list() {
+		return awardMapper.list();
+	}
+	@Transactional
+	public int  add(AwardModel awardModel) {
+		return awardMapper.add(awardModel);
+	}
+
+}

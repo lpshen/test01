@@ -1,0 +1,26 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>微信支付</title>
+<meta name="description" content="微信支付" />
+<meta name="keywords" content="微信支付" />
+<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
+<link href="css/style.css" type="text/css" rel="stylesheet" />
+
+	<script type="text/javascript">
+	</script>
+</head>
+<body>
+<div align="center" bgcolor="#666666">
+   <div>
+<!--扫描代码-->
+	<p style="color: red;">${res}</p>
+	<p style="color: red;">${exception}</p>
+<!--扫描代码结束-->
+<!--底部代码-->
+      
+<!--底部代码结束-->
+   </div>
+</div>
+</body>
+</html>

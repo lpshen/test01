@@ -1,0 +1,41 @@
+package com.bms.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.bms.mapper.DiningTableMapper;
+import com.bms.model.DiningTableModel;
+
+
+
+@Service
+public class DiningTableService {
+
+	@Autowired
+	private DiningTableMapper diningTableMapper;
+
+	@Transactional
+	public int insert(DiningTableModel diningTableModel){
+		return diningTableMapper.insert(diningTableModel);
+	}
+	@Transactional
+	public int  delete(Integer diningTableId) {
+		Map<String, Integer> param = new HashMap<>();
+		param.put("diningTableId", diningTableId);
+		System.out.println("diningTableId%%" +diningTableId);
+		return diningTableMapper.delete(param);
+	}
+	public List<DiningTableModel> listBySearch(Integer tableNum,String updateTime,String tableType) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("tableNum", tableNum);
+		param.put("updateTime", updateTime);
+		param.put("tableType", tableType);
+		return diningTableMapper.listBySearch(param);
+	}
+	
+}

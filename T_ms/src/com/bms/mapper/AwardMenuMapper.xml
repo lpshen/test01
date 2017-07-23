@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.AwardMenuMapper">
+
+	<insert id="insert" parameterType="com.bms.model.AwardMenuModel">
+	insert into
+	award_menu(award_id,award_num,award_name)values(#{awardId},#{awardNum},#{awardName})
+    </insert>
+    <select id="list" resultType="com.bms.model.AwardMenuModel">
+    select award_id awardId,award_num awardNum,award_name awardName from award_menu;
+    </select>
+    <select id="count" resultType="int">
+    select count(*) from award_menu;
+    </select>
+    <delete id="delete" parameterType="java.util.Map" >
+    delete from award_menu where award_id =#{awardId}
+    </delete>
+    <update id="update" parameterType="java.util.Map">
+    update award_menu set award_name =#{awardName} where award_id = #{awardId}
+    </update>
+    <select id="findByAwardNum" parameterType="java.util.Map">
+    select * from award_menu where award_num = #{awardNum}
+    </select>
+
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.ShopMapper">
+
+	<insert id="insertShop" parameterType="com.bms.model.ShopModel">
+	insert into
+	shop(id,adminid,shopname,pictureurl,address,phonenum,descri,time,state)
+	values(#{id},#{adminid},#{shopname},#{pictureurl},#{address},#{phonenum},#{descri},'${time}','${state}')
+    </insert>
+    
+    <delete id="deleteShop" parameterType="com.bms.model.ShopModel">
+     delete from shop  where id = #{id}
+  	</delete>
+  	<select id="findAll" resultType="com.bms.model.ShopModel">
+  	select * from shop 
+  	</select>
+  	<update id="updateShop" parameterType="com.bms.model.ShopModel">
+  		update shop set shopname = #{shopname},address = #{address},phonenum = #{phonenum},pictureurl =
+  		#{pictureurl} where id = #{id}
+  	</update>
+  	<update id="editState" parameterType="com.bms.model.ShopModel">
+  	update shop set state = #{state} where id = #{id}
+  	</update>
+
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.ShopModel" parameterType="java.util.Map">
+  		select * from shop where 1 = 1
+  		<if test="shopname != null">
+  		 and shopname like '%${shopname}%'
+  		</if>
+  		<if test="addtime != null">
+  		 and time like '%${addtime}%'
+  		</if>
+  		<if test="adminid != null">
+  		 and adminid = ${adminid}
+  		</if>
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from Shop where 1=1 
+  		<if test="searchType == 'phonenum'">
+  		and phonenum like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  	<!-- 查询登录 -->
+  	<select id="findByShop" resultType="com.bms.model.ShopModel" parameterType="java.util.Map">
+  	select * from shop where Shopname = #{Shopname} and password = #{password}
+  	</select>
+  	
+  	  	<select id = "listBySearchQT" resultType="com.bms.model.ShopModel" parameterType="java.util.Map">
+  		select * from shop where 1 = 1
+  	  	<if test="shopname != null">
+  		 and shopname like '%${shopname}%'
+  		</if>
+		limit #{pageNo},#{pageSize}
+  	</select>
+  	<update id="update" parameterType="com.bms.model.ShopModel">
+  		update shop set shopname = #{shopname},pictureurl = #{pictureurl},
+  		descri = #{descri}, address = #{address},phonenum = #{phonenum},time = #{time} where id = #{id}
+  	</update>
+  	<select id="getOne" resultType="com.bms.model.ShopModel">
+  	select * from shop;
+  	</select>
+  
+
+  <!-- 
+  <select id="getShopByShopname" parameterType="string" resultType="com.huawei.nser.standard.dao.Shop">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_Shop where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addShop" parameterType="com.huawei.nser.standard.values.ECShopValue">
+       insert into ec_Shop(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setShopPassword" parameterType="com.huawei.nser.standard.dao.Shop">
+   　　　update ec_Shop set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

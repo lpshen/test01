@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.ReserveTableMapper">
+<!-- 
+    <select id="list" resultType="com.bms.model.AwardModel">
+    select award_id awardId,award_name awardName,award_time awardTime,user_id userId,user_name userName,state from awards;
+    </select>
+    <insert id="add" parameterType="com.bms.model.AwardModel" >
+    insert into awards (award_id,award_name,award_time,user_id,user_name,state) values(#{awardId},#{awardName},#{awardTime},#{userId},#{userName},#{state});
+    </insert>
+    <select id="listBySearch" resultType="com.bms.model.AwardModel" parameterType="java.util.Map">
+  		select award_id awardId,award_name awardName,award_time awardTime,user_id userId,user_name userName,state from awards where 1 = 1
+  		<if test="userName != null">
+  		 and user_name like '%${userName}%'
+  		</if>
+  		<if test="awardTime != null">
+  		 and award_time like '%${awardTime}%'
+  		</if>
+  		<if test="state != null">
+  		 and state = '${state}'
+  		</if>
+  	</select>
+ -->
+ <insert id="insert" parameterType="com.bms.model.ReserveTableModel">
+ 	insert into reserve_table 
+ 	(reserve_id,user_id,dining_table_id,reserve_date,reserve_time,phonenum,linkman,state) 
+ 	values(#{reserveId},#{userId},#{diningTableId},#{reserveDate},#{reserveTime},#{phonenum},#{linkman},#{state})
+ </insert>
+ <select id="listBySearch" parameterType ="java.util.Map" resultType="com.bms.model.ReserveTableModel">
+ 	select reserve_id reserveId, user_id userId,dining_table_id diningTableId,reserve_date reserveDate,reserve_time reserveTime,phonenum,linkman,state from reserve_table where 1 = 1
+ 	<if test="diningTableId != null" >
+		and dining_table_id = ${diningTableId} 	
+ 	</if>
+ 	<if test="reserveDate != null" >
+		and reserve_date  like '%${reserveDate}%'	
+ 	</if> 
+ 	<if test="reserveTime != null" >
+		and reserve_time ='${reserveTime}'	
+ 	</if>
+ 	<if test="userId != null" >
+		and user_id ='${userId}'	
+ 	</if>
+ 	<if test="phoneNum != null" >
+		and phonenum ='${phoneNum}'	
+ 	</if>
+ 	<if test="linkman != null" >
+		and linkman ='${linkman}'	
+ 	</if>
+ 	<if test="state != null" >
+		and state ='${state}'	
+ 	</if>
+ 	<if test="pageSize != null" >
+ 		and state ='未处理'
+		limit #{pageNo},#{pageSize}
+ 	</if> 	 	
+ </select>
+ 
+   	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from reserve_table where 1=1 
+  		<if test="userId != null">
+  		and user_id = ${userId}
+  		</if> 
+  		
+  	</select>
+  	
+  	<update id="updateState" parameterType="java.util.Map">
+  		update reserve_table set state = #{state} where reserve_id = #{reserveId}
+  	</update>
+
+
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

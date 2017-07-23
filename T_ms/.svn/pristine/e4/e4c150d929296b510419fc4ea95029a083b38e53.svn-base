@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.PayRecordMapper">
+
+	<insert id="insertRechargeRecord" parameterType="com.bms.model.PayRecordModel">
+	insert into
+	pay_record(id,userid,money,time,way)values(#{id},#{userid},#{money},#{time},#{way})
+    </insert>
+    
+    <delete id="deleteRechargeRecord" parameterType="com.bms.model.PayRecordModel">
+     delete from pay_record  where id = #{id}
+  	</delete>
+
+  	<!-- 传入多个参数 -->
+  	<select id="listByPage" resultType="com.bms.model.PayRecordModel" parameterType="java.util.Map">
+  		select p.id,p.userid,p.money,p.time,o.ordernum from pay_record p inner join orders o  on o.orderid = p.orderid where p.userid= #{userid} limit #{pageNo} , #{pageSize}
+  	</select>
+  	<select id="getTotal" resultType="java.lang.Long" parameterType="java.util.Map"> 
+  		select count(*) from pay_record where userid = #{userid}
+  	</select> 
+  	<!-- 用户消费记录 -->	
+	<select id="list" resultType="com.bms.model.PayListModel" parameterType="java.util.Map">
+		select p.id,u.username,p.money,p.time,u.state,o.ordernum from pay_record p left join user u on p.userid = u.id left join orders o on p.orderid = o.orderid where 1= 1
+		<if test="time != null">
+			p.time like '%#{time}%'
+		</if>
+		<if test="username != null">
+			u.username like '%#{username}%'
+		</if>
+		<if test="ordernum != null">
+			o.ordernum like '%#{ordernum}%'
+		</if>
+	</select>
+  
+	
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

@@ -1,0 +1,48 @@
+package com.bms.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.bms.mapper.ReserveTableMapper;
+import com.bms.model.ReserveTableModel;
+
+
+
+@Service
+public class ReserveTableService {
+
+	@Autowired
+	private ReserveTableMapper reserveTableMapper;
+
+	@Transactional
+	public int insert(ReserveTableModel reserveTableModel){
+		return reserveTableMapper.insert(reserveTableModel);
+	}
+	@Transactional
+	public List<ReserveTableModel> listBySearch( Integer userId,Integer diningTableId ,String reserveDate ,String reserveTime,String state,Integer pageNo ,Integer pageSize){
+		Map<String , Object> param = new HashMap<>();
+		if (pageNo != null) {
+			int temp = (pageNo-1)*pageSize;//所在页的第一条（不包含）
+			param.put("pageNo", temp);
+		}
+		param.put("userId", userId);
+		param.put("diningTableId", diningTableId);
+		param.put("reserveData", reserveDate);
+		param.put("reserveTime", reserveTime);
+		param.put("state", state);
+		param.put("pageSize", pageSize);
+		return reserveTableMapper.listBySearch(param);
+	}
+	public Long getTotalBySearch(Integer userId) {
+		Map<String, Integer> param = new HashMap<>();
+		param.put("userId", userId);
+		return reserveTableMapper.getTotalBySearch(param);
+	  
+	}
+	
+}

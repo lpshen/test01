@@ -1,0 +1,68 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>商品展示</title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	function test(){
+		alert('1'+value);
+	}
+	function search(){
+		var searchName = $('#searchName').val();
+		var searchType = $('#searchType').val();
+		alert(searchName+" "+searchType);
+	}
+	</script>
+
+	<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	#med #foodShow{
+		width:250px;
+		height:250px;
+		float:left;
+		}
+	#med #shopShow{
+		width:300px;
+		height:300px;
+		float:left;
+		}
+	#med #search{
+		height:100px;
+	}
+	
+	</style>
+<body>
+<jsp:include  page="head.jsp"/>
+<div id="main">
+	<div id="left">
+		<jsp:include page="left.jsp"/>
+	</div>
+	<div id="med">
+	<!-- 主要部分 -->
+  	<!--  <input id="userid" type="hidden" name="userid" value="1"> -->
+    <input id="userid" type="hidden" name="userid" value="1">
+	<table align="center" width="100%">
+		<thead bgcolor="#EEEEEE"><td width="30%" align="center">奖品名称</td><td width="20%" align="center">用户</td><td width="30%" align="center">获奖时间</td><td width="20%" align="center">兑换状态</td></thead>
+	<c:forEach items="${pageModel.list}" var="awardModel">
+		<tr bgcolor="#BCD5EE"><td align="center">${awardModel.awardName}</td><td align="center">${awardModel.userName}</td><td align="center">${awardModel.awardTime}</td><td align="center">${awardModel.state}</td></tr>
+	</c:forEach>
+		<tr bgcolor="#EEEEEE"><td colspan="4" align="center">
+	       <a href="${pageContext.request.contextPath}/award/list.do?pageNo=${pageModel.firstPage}&userid=1">第一页</a>
+		   <a href="${pageContext.request.contextPath}/award/list.do?pageNo=${pageModel.previousPage}&userid=1">上一页</a>
+		   <a href="${pageContext.request.contextPath}/award/list.do?pageNo=${pageModel.nextPage}&userid=1">下一页</a>
+		   <a href="${pageContext.request.contextPath}/award/list.do?pageNo=${pageModel.lastPage}&userid=1">尾页</a>		
+		</td></tr>
+	</table>					
+	<!-- 主要部分结束 -->
+	</div>
+	<div id="right">
+		<jsp:include page="right.jsp"/>
+	</div>
+</div>
+<jsp:include  page="bottom.jsp"/> 
+</body>
+</html>

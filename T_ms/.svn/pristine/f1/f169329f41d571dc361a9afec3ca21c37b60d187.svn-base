@@ -1,0 +1,314 @@
+﻿<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+
+<%  
+   //页面每隔30秒自动刷新一遍       
+ //  response.setHeader("refresh" , "30" );  
+%> 
+<html lang="en">
+	<head>
+	<meta charset="UTF-8">
+	<title>后台管理系统</title>
+	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/easyui/css/easyui.css">
+	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/easyui/css/icon.css">
+	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/easyui/css/demo.css">
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/extend_validatebox.js"></script>
+	<script type="text/javascript"
+	src="${pageContext.request.contextPath}/easyui/js/easyui-lang-zh_CN.js"></script>
+
+
+    <script type="text/javascript">
+    <!--操作按钮 -->
+    function formatOper(val,row,index){
+    	if(row.state == '已启用'){
+        return '<a href="#"  style="text-decoration:none;" onclick="editState('+index+')">停用</a>'; 
+    	}else if(row.state == '未启用'){
+    		return '<a href="#"  style="text-decoration:none;" onclick="editState('+index+')">启用</a>';	
+    	}
+    }
+    <!--操作状态 -->
+    function editState(index){  
+        $('#food').datagrid('selectRow',index);// 关键在这里  
+        var row = $('#food').datagrid('getSelected');  
+        if (row){
+        	if(confirm("确定改变此条状态？")){
+        	$.ajax({
+				   type:"post", //请求方式
+				   url:"../../greens/editState.do?userid=12", //发送请求地址
+				   data:{
+					   menuid:row.menuid,
+					   state:row.state
+				   }, //发送给数据库的数据     
+				   dataType : "json",
+				   //请求成功后的回调函数有两个参数
+				   success:function(data){
+					   if(data[0].msg == "成功"){
+						   $('#dlg').dialog('close');
+						   $.messager.alert('提示','状态修改成功！','info');
+						   $('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(date,foodName,userid,type));
+					   }
+					   else if(data[0].msg == "失败"){
+						   $.messager.alert('提示','状态修改失败！','info');
+					   }   
+				   },
+				   error: function(e) { 
+					   alert('错误'+e); 
+					   } 
+				   }); 
+        }  
+        }
+    } 
+    <!--修改 -->
+    function update(){
+    	var row = $('#food').datagrid('getSelected');
+    	if(row){
+    		 $("#update_menuid").val(row.menuid);
+        	 $("#update_foodName").textbox("setValue",row.grename);
+        	 $("#update_oriPrice").textbox("setValue",row.oriprice);
+        	 $("#update_curPrice").textbox("setValue",row.curprice);
+        	 $("#update_pictureUrl").textbox("setValue",row.pictureurl);
+        	 
+         	$('#update-dlg').dialog('open');
+    	}else{
+    		$.messager.alert('提示','请选择一行!','info');
+    	}
+    }
+    function food_update(){
+    	$.ajax({
+    		url:'../../greens/update.do',
+    		data:{
+       		 menuid:$("#update_menuid").val(),
+        	 foodName:$("#update_foodName").textbox("getValue"),
+        	 oriPrice:$("#update_oriPrice").textbox("getValue"),
+        	 curPrice:$("#update_curPrice").textbox("getValue"),
+        	 pictureUrl:$("#update_pictureUrl").textbox("getValue")	
+    		},
+    		type:'POST',
+    		dataType:'json',
+    	    success: function (data) {
+    	    	alert("@"+ data[0]);
+		    	if(data[0].msg == "success"){
+					   $('#update-dlg').dialog('close');
+					   $.messager.alert('提示','修改成功！','info');
+					   $('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(messagetime,replytime,userid,state));
+				   }
+				   else if(data[0].msg == "failed"){
+					   $.messager.alert('提示','修改失败！','info');
+				   }    
+		    } 
+    	});
+    	
+    }
+    
+    function addSave(){
+		var atableNum = $("#add_tableNum").val();
+    	var atableType = $('#add_tableType').combobox('getValue'); 
+		 $.ajax({
+			   type:"post", //请求方式
+			   url:"../../diningTable/insert.do", //发送请求地址
+			   data:{
+				  tableNum:atableNum,
+				  tableType:atableType 
+			   }, //发送给数据库的数据     
+			   dataType : "json",
+			   //请求成功后的回调函数有两个参数
+			   success:function(data){
+				   if(data[0].msg == "success"){
+					   $('#dlg').dialog('close');
+					   $.messager.alert('提示','添加成功！','info');
+					   $('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(tableNum,tableType,updateTime));
+				   }
+				   else if(data[0].msg == "fail"){
+					   $.messager.alert('提示','修改失败！','info');
+				   }   
+			   },
+			   error: function(e) { 
+				   alert('错误'+e); 
+				   } 
+			   });
+	}
+    <!--删除 -->
+    function deletedate(){
+    	 var _list = {};  
+    	 var row = $('#food').datagrid('getSelections'); //多行选择
+    	if(row.length > 0){
+    		//alert("row.length"+row.length);
+    		//alert("row.id"+row[0].menuid);
+    		for (var i = 0; i < row.length; i++) {  
+    		    _list["selectedIDs[" + i + "]"] = row[i].menuid;  
+    		}
+    		_list["selectedIDsLength"] = row.length;  
+    		$.ajax({  
+    		    url: '../../greens/delete.do',  
+    		    //data: { "selectedIDs": _list },  
+    		    data: _list,  
+    		    dataType: "json",  
+    		    type: "POST",  
+    		    //traditional: true,  
+    		    success: function (data) {
+    		    	if(data[0].msg == "成功"){
+						   $('#dlg').dialog('close');
+						   $.messager.alert('提示','删除成功！','info');
+						   $('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(date,foodName,userid,type));
+					   }
+					   else if(data[0].msg == "失败"){
+						   $.messager.alert('提示','删除失败！','info');
+					   }    
+    		    }  
+    		}); 
+    	}else{
+    		$.messager.alert('提示','请选择行！','info');
+    	}
+
+    }
+    
+    
+    var updateTime = "";
+    var tableNum = "";
+    var tableType = "";
+    
+    function Search(){
+    	updateTime = $("input[name='updateTime']").val();//使用id 获取不了 这里使用name
+    	tableNum = $("#tableNum").val();
+    	tableType = $('#tableType').combobox('getValue');<!--easyui中获取select选中值 -->
+    //	userid = $("#userid").val();
+    	$('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(tableNum,tableType,updateTime));
+    };
+   function loadData(tableNum,tableType,updateTime){
+		$('#food').datagrid({
+			url: '../../diningTable/listBySearch.do?tableNum='+tableNum+'&tableType='+tableType+'&updateTime='+updateTime,
+			title: '餐桌设置',
+			height:'560px',
+			fitColumns: true,
+			columns:[[
+				{field:'ck',checkbox:true},
+				{field:'diningTableId',title:'Id',width:80},
+				{field:'tableType',title:'就餐人数类型',width:80},
+				{field:'tableNum',title:'桌号',width:100},
+				{field:'updateTime',title:'修改时间',width:50},
+				{field:'_operate',title:'操作',width:80,align:'center',formatter:formatOper}
+			]],
+			pagination:true,
+			pageSize:'20',
+			toolbar:'#tb'
+			
+		});
+	}
+    
+    function pagerFilter(data){
+		if (typeof data.length == 'number' && typeof data.splice == 'function'){	// is array
+			data = {
+				total: data.length,
+				rows: data
+			}
+		}
+		var dg = $(this);
+		var opts = dg.datagrid('options');
+		var pager = dg.datagrid('getPager');
+		pager.pagination({
+			onSelectPage:function(pageNum, pageSize){
+				opts.pageNumber = pageNum;
+				opts.pageSize = pageSize;
+				pager.pagination('refresh',{
+					pageNumber:pageNum,
+					pageSize:pageSize
+				});
+				dg.datagrid('loadData',data);
+			}
+		});
+		if (!data.originalRows){
+			data.originalRows = (data.rows);
+		}
+		var start = (opts.pageNumber-1)*parseInt(opts.pageSize);
+		var end = start + parseInt(opts.pageSize);
+		data.rows = (data.originalRows.slice(start, end));
+		return data;
+	}
+    <!--客户端分页 -->
+    $(function(){$('#food').datagrid({loadFilter:pagerFilter}).datagrid('loadData', loadData(tableNum,tableType,updateTime));})
+    </script>
+    </head>
+    <body>
+    <table id = "food"></table>
+    <div id="tb" style="padding:5px;height:auto">
+    	<div style="margin-bottom:5px">
+			<a href="#" class="easyui-linkbutton" onclick="$('#dlg').dialog('open')" iconCls="icon-add" plain="true">添加</a>
+			<a href="#" class="easyui-linkbutton" iconCls="icon-edit" onclick="update()"plain="true">编辑</a>
+			<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true">保存</a>
+			<a href="#" class="easyui-linkbutton" onclick="deletedate()" iconCls="icon-remove" plain="true">删除</a>
+		</div>
+		<div>
+			修改日期: <input id ="updateTime" name = "updateTime" class="easyui-datebox" style="width:150px">
+			桌号:<input id = "tableNum" class='easyui-textbox' style="width:150px">
+			就餐人数类型: 
+			<select id = "tableType" name="tableType" class="easyui-combobox" panelHeight="auto" style="width:100px"><!--panelHeight="auto" 下拉框长度自适应  -->
+				<option value="">—请选择—</option>
+				<option value="2">2</option>
+				<option value="4">4</option>
+				<option value="6">6</option>
+				<option value="8">8</option>
+				<option value="10">10</option>
+			</select>&nbsp;&nbsp;&nbsp;
+			<a href="#" class="easyui-linkbutton" onclick="Search()" iconCls="icon-search">查询</a>
+		</div>
+	</div>
+	<!-- dialog 添加对话框 -->
+	<div id="dlg" class="easyui-dialog" title="添加食物" style="display: none;overflow: hidden; width:400px;height:400px;padding:10px"
+			data-options="
+				iconCls: 'icon-save',
+				buttons: '#dlg-buttons',
+				closed: true          
+			">
+			   <!--closed : true 解决加载时对话框弹出 -->
+		<form id="addTable" method="post">
+			<table>
+				<tr><td>桌号：</td><td><input id="add_tableNum" name="add_tableNum"  class='easyui-textbox' data-options="prompt:'请输入数字',missingMessage:'此处不能为空',invalidMessage:'长度为3~10之间',required:true,validType:'length[1,10]'" style="width:250px"></td></tr>
+				<tr><td>用餐人数：</td><td><select id="add_tableType" name="add_tableType" class="easyui-combobox" name="language" panelHeight='auto' >
+												<option value="2">2</option>
+												<option value="4">4</option>
+												<option value="6">6</option>
+												<option value="8">8</option>
+												<option value="10">10</option>
+										  </select></td></tr>
+			</table>
+		</form>
+	</div>
+
+	<div id="dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="addSave()">保存</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+	</div>
+	
+		<!-- dialog 修改对话框 -->
+	<div id="update-dlg" class="easyui-dialog" title="修改菜单" style="display: none;overflow: hidden; width:400px;height:300px;padding:10px"
+			data-options="
+				iconCls: 'icon-save',
+				buttons: '#update-dlg-buttons',
+				closed: true          
+			">
+			   <!--closed : true 解决加载时对话框弹出 -->
+		<form id="updateTable"  method="post">
+			<table>
+				<tr><td>菜单ID:</td><td><input id="update_menuid"  disabled="true" ></td></tr>
+				<tr><td>菜名：</td><td><input id="update_foodName" name="update_foodName" class='easyui-textbox' data-options="prompt:'请输入菜名',missingMessage:'此处不能为空',invalidMessage:'长度为3~10之间',required:true,validType:'length[3,10]'" style="width:250px" ></td></tr>
+				<tr><td>原价（￥）：&nbsp;</td><td><input id="update_oriPrice"  name="update_oriPrice"class='easyui-textbox' data-options="prompt:'原价',missingMessage:'此处不能为空',required:true,validType:['currency','length[1,5]']" style="width:250px"></td></tr>
+				<tr><td>现价（￥）：&nbsp;</td><td><input id="update_curPrice" name="update_curPrice" class='easyui-textbox' data-options="prompt:'现价',missingMessage:'此处不能为空',required:true,validType:['currency','length[1,5]']"  style="width:250px"></td></tr>
+				<tr><td>图片路径：</td><td><input id="update_pictureUrl"  name="update_pictureUrl" class='easyui-textbox' data-options="missingMessage:'此处不能为空',required:true"  style="width:250px"></td></tr>
+ 			   </tr>
+			</table>
+			
+	<div id="update-dlg-buttons">
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="food_update()">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" onclick="javascript:$('#update-dlg').dialog('close')">取消</a>
+	</div>
+		</form>
+	</div>
+	</body>
+	<script type="text/javascript">
+		
+	</script>
+</html>
+

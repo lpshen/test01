@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.UserMapper">
+
+	<insert id="insertUser" parameterType="com.bms.model.UserModel">
+	insert into
+	user(id,username,password,addressid,phonenum,email,addtime)values(#{id},#{username},#{password},#{addressid},#{phonenum},#{email},#{addtime})
+    </insert>
+    
+    <delete id="deleteById" parameterType="com.bms.model.UserModel">
+     delete from user  where id = #{id}
+  	</delete>
+  	<select id="findAll" resultType="com.bms.model.UserModel">
+  	select * from user 
+  	</select>
+  	<update id="updateUser" parameterType="com.bms.model.UserModel">
+  	update user set password = #{password} where id = #{id}
+  	</update>
+  	<update id="recharge" parameterType="com.bms.model.UserModel">
+  	update user set money = money + #{money} where id = #{id}
+  	</update>
+  	<update id="pay" parameterType="java.util.Map">
+  	update user set money = money -#{totalprice} where id =#{userid}
+  	</update>
+  	<select id="findByUserid" resultType="com.bms.model.UserModel" parameterType="java.util.Map">
+  	select * from user where id = #{userid}
+  	</select>
+
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.UserModel" parameterType="java.util.Map">
+  		select * from user where 1 = 1
+  		<if test="username != null">
+  		 and username like '%${username}%'
+  		</if>
+  		<if test="phonenum != null">
+  		 and phonenum like '%${phonenum}%'
+  		</if>
+  		<if test="addtime != null">
+  		 and addtime like '%${addtime}%'
+  		</if>
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from user where 1=1 
+  		<if test="searchType == 'phonenum'">
+  		and phonenum like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  	<!-- 查询登录 -->
+  	<select id="findByUser" resultType="com.bms.model.UserModel" parameterType="java.util.Map">
+  	select * from user where username = #{username} and password = #{password}
+  	</select>
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

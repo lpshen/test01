@@ -1,0 +1,642 @@
+package com.bms.controller;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bms.common.ApplicationContextFactory;
+import com.bms.model.AccountModel;
+import com.bms.model.GreensModel;
+import com.bms.model.OneFoodModel;
+import com.bms.model.PageModel;
+import com.bms.model.ShopModel;
+import com.bms.service.AccountDao;
+import com.bms.service.GreensService;
+import com.bms.service.ShopService;
+
+import net.sf.json.JSONArray;
+
+@Controller
+@RequestMapping("/greens")
+public class GreensController {
+	private GreensService greensService = (GreensService) ApplicationContextFactory.getInstance()
+			.getBean("greensService");
+
+	// @RequestMapping("/login")
+	// public ModelAndView login(HttpServletRequest request, HttpServletResponse
+	// response) {
+	// ModelAndView modelAndView = new ModelAndView();
+	// LogLoginService logLoginService = (LogLoginService)
+	// ApplicationContextFactory.getInstance().getBean("logLoginService");
+	// String username = null;
+	// String password = null;
+	// String strCode = null;// session中保存的验证码
+	// if (request.getParameter("username").trim() != null &&
+	// request.getParameter("password").trim() != null
+	// && request.getParameter("authCode") != null) {
+	// strCode = (String) request.getSession().getAttribute("strCode");
+	// if (request.getParameter("authCode").trim().equals(strCode.trim())) {
+	// username = request.getParameter("username").trim();
+	// password = request.getParameter("password").trim();
+	// List<UserModel> list = null;
+	// list = userService.findByUser(username, password);
+	//
+	// if (list.size() != 0) {
+	// UserModel userModel = list.get(0);
+	// if (userModel.getUsername() != null) {//登录成功
+	// modelAndView.setViewName("/index.jsp");
+	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+	// LogLoginModel logLoginModel = new LogLoginModel();
+	// logLoginModel.setRole("YH");
+	// logLoginModel.setUserid(userModel.getId());
+	// logLoginModel.setUsername(userModel.getUsername());
+	// logLoginModel.setTime(sdf.format(new Date()));
+	// logLoginService.insertLogLogin(logLoginModel);
+	// modelAndView.addObject("user", userModel);
+	// request.getSession().setAttribute("user", userModel);
+	// }
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "用户不存在或密码错误");
+	// }
+	// return modelAndView;
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "验证码错误");
+	// return modelAndView;
+	// }
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "用户名或密码不能为空");
+	// }
+	// return modelAndView;
+	//
+	// }
+
+	// @RequestMapping("/register")
+	// public ModelAndView register(HttpServletRequest request,
+	// HttpServletResponse response) {
+	// ModelAndView modelAndView = new ModelAndView();
+	// UserModel userModel = new UserModel();
+	// if (request.getParameter("authCode") != null) {
+	// String strCode =(String) request.getSession().getAttribute("strCode");
+	// if (!(request.getParameter("authCode").trim().equals(strCode.trim()))) {
+	// modelAndView.setViewName("/register.jsp");
+	// modelAndView.addObject("msg", "验证码错误");
+	// return modelAndView;
+	// }
+	// }
+	// if (request.getParameter("username") != null) {
+	// userModel.setUsername(request.getParameter("username").trim());
+	// }
+	// if (request.getParameter("password") != null &&
+	// request.getParameter("repassword") != null) {
+	// if
+	// (!(request.getParameter("password").trim().equals(request.getParameter("repassword").trim())))
+	// {
+	// modelAndView.setViewName("/register.jsp");
+	// modelAndView.addObject("msg", "密码错误，请确保两次输入密码相同");
+	// return modelAndView;
+	// }
+	// userModel.setPassword(request.getParameter("password").trim());
+	// }
+	//
+	// if (request.getParameter("phonenum") != null) {
+	// userModel.setPhonenum(request.getParameter("phonenum"));
+	// }
+	// if (request.getParameter("email") != null) {
+	// userModel.setEmail(request.getParameter("email"));
+	// }
+	//
+	// userService.insertUser(userModel);
+	// return new ModelAndView("/success.jsp");
+	//
+	// }
+	//ots 分页查询显示
+	@RequestMapping("/listBySearchQT")
+	public ModelAndView listBySearch(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+		ModelAndView modelAndView = new ModelAndView("/ots/foodlist.jsp");
+		Integer page;
+		if (request.getParameter("pageNo") == null) {
+			page = 1;
+		} else {
+			page = Integer.parseInt(request.getParameter("pageNo"));
+		}
+		String searchName = null;
+		String type = null;
+			//查询菜单
+		if(request.getParameter("searchName") != null&&!"".equals(request.getParameter("searchName")) ){
+	        if("POST".equals(request.getMethod())){
+			searchName =request.getParameter("searchName");
+	        }else{
+	        searchName = new String(request.getParameter("searchName").getBytes("ISO8859-1"),"utf-8");
+	        }
+		}
+		if (request.getParameter("type") != null&&!"".equals(request.getParameter("type"))) {
+			type = new String(request.getParameter("type").getBytes("ISO8859-1"),"utf-8");
+		}
+			System.out.println(searchName);
+			List<GreensModel> list = greensService.listBySearchQT(page, 4, searchName,type);
+			PageModel<GreensModel> pageModel = new PageModel<>();
+			pageModel.setList(list);
+			pageModel.setPageNo(page);
+			pageModel.setPageSize(4);
+			pageModel.setTotalCount(greensService.getTotalBySearch(searchName,type).intValue());
+			modelAndView.addObject("pageModel", pageModel);
+			modelAndView.addObject("type", type);
+			modelAndView.addObject("searchName", searchName);
+			return modelAndView;
+//		}
+
+	}
+	
+	//ots 查询单条
+		@RequestMapping("/findOne")
+		public ModelAndView findOne(HttpServletRequest request, HttpServletResponse response) {
+			ModelAndView modelAndView = new ModelAndView("/ots/foodShow.jsp");
+				if (request.getParameter("menuid") != null) {
+					Integer menuid = Integer.parseInt(request.getParameter("menuid"));
+					OneFoodModel oneFoodModel = greensService.findOne(menuid);
+					System.out.println("查询："+oneFoodModel.toString());
+					modelAndView.addObject("oneFoodModel", oneFoodModel);
+				}else {
+					modelAndView.addObject("msg", "error");
+				}
+				return modelAndView;
+			
+
+		}
+
+	@RequestMapping("/deleteSubmit")
+	public ModelAndView delete(@ModelAttribute("accountModel") AccountModel accountModel, HttpServletRequest request,
+			HttpServletResponse response) {
+
+		AccountDao dao = (AccountDao) ApplicationContextFactory.getInstance().getBean("accountDao");
+		accountModel.setUsername("admin");
+		dao.deleteUser(accountModel);
+		return new ModelAndView("/success.jsp");
+
+	}
+
+	// easyui 页面查询菜单
+	@RequestMapping("/list")
+	public String findAll(HttpServletRequest request, HttpServletResponse response) throws ParseException, IOException {
+		Integer userid = null;
+		String foodName = null;
+		String time = null;
+		String type = null;
+		// request.setCharacterEncoding("utf-8");
+		if (request.getParameter("date") != null && !("".equals(request.getParameter("date")))) {
+//			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+//			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+//			Date date = sdf.parse(request.getParameter("date"));
+//			time = sdf2.format(date);
+//			System.out.println("time" + time);
+			time = request.getParameter("date");
+		}
+		if (request.getParameter("foodName") != null && !("".equals(request.getParameter("foodName")))) {
+			foodName = new String(request.getParameter("foodName").getBytes("ISO8859-1"), "utf-8");
+			System.out.println("foodName" + foodName);
+		}
+		if (request.getParameter("type") != null && !("".equals(request.getParameter("type")))) {
+			type = new String(request.getParameter("type").getBytes("ISO8859-1"), "utf-8");
+			System.out.println("type" + type);
+		}
+
+		List<GreensModel> list = greensService.listBySearch(type, foodName, time, userid);
+		String json = JSONArray.fromObject(list).toString();
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		System.out.println("json:" + json);
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+	}
+
+	@RequestMapping("/updateSubmit")
+	public ModelAndView updateSub(HttpServletRequest request, HttpServletResponse response) {
+		AccountModel accountModel = new AccountModel();
+		if (request.getParameter("username") != null && request.getParameter("password") != null
+				&& request.getParameter("accountId") != null) {
+			accountModel.setUsername(request.getParameter("username").trim());
+			accountModel.setPassword(request.getParameter("password").trim());
+			accountModel.setAccountId(request.getParameter("accountId"));
+			System.out.println(request.getParameter("username").trim() + "=" + request.getParameter("password").trim());
+		} else {
+			return new ModelAndView("/error.jsp");
+		}
+
+		AccountDao dao = (AccountDao) ApplicationContextFactory.getInstance().getBean("accountDao");
+		dao.update(accountModel);
+		return new ModelAndView("/success.jsp");
+
+	}
+//菜单修改	
+	@RequestMapping("/update")
+	public String update(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		GreensModel greensModel = new GreensModel();
+		if(request.getParameter("menuid")!= null){
+			greensModel.setMenuid(Integer.parseInt(request.getParameter("menuid")));
+		}
+		if(request.getParameter("foodName")!= null){
+			greensModel.setGrename(request.getParameter("foodName"));
+		}
+		if(request.getParameter("oriPrice")!= null){
+			greensModel.setOriprice(new BigDecimal(request.getParameter("oriPrice")));
+		}
+		if(request.getParameter("curPrice")!= null){
+			greensModel.setCurprice(new BigDecimal(request.getParameter("curPrice")));
+		}
+		if(request.getParameter("pictureUrl")!= null){
+			greensModel.setPictureurl(request.getParameter("pictureUrl"));
+		}
+		System.out.println(greensModel.toString());
+		int result = 0;
+		result = greensService.update(greensModel);
+		System.out.println("result:"+result);
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		if (result > 0) {
+			map.put("msg", "success");
+		}else{
+			map.put("msg", "failed");
+		}
+		list.add(map);
+		PrintWriter out = response.getWriter();
+		String json = JSONArray.fromObject(list).toString();
+		System.out.print("json:"+json);
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+
+	}
+//easyui 菜单启用与停用	
+	@RequestMapping("/editState")
+	public String editState(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		System.out.println("state:"+request.getParameter("state"));
+		System.out.println("menuid:"+request.getParameter("menuid"));
+		Integer menuid = null;
+		int result = 0;	
+		if (request.getParameter("state")!=null&&request.getParameter("menuid")!=null) {
+			GreensModel greensModel = new GreensModel();
+			menuid = Integer.parseInt(request.getParameter("menuid"));
+			if ("已启用".equals(request.getParameter("state").trim())) {
+				greensModel.setMenuid(menuid);
+				greensModel.setState("未启用");
+			}else if ("未启用".equals(request.getParameter("state").trim())) {
+				greensModel.setMenuid(menuid);
+				greensModel.setState("已启用");
+			}
+			result = greensService.editState(greensModel);
+		}
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		if (result > 0) {
+			map.put("msg", "成功");
+		}else{
+			map.put("msg", "失败");
+		}
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+	}
+
+//	@RequestMapping("/logout")
+//	public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+//		request.getSession().invalidate();
+//		return new ModelAndView("/login.jsp");
+//	}
+//easyui 页面 单条多条删除	
+	@RequestMapping("/delete")
+	public String delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	 System.out.println(request.getParameter("selectedIDsLength"));
+	 Integer length = null;
+	 int result = 0;
+	 if (request.getParameter("selectedIDsLength")!= null) {
+		 GreensModel greensModel = new GreensModel();
+		length = Integer.parseInt(request.getParameter("selectedIDsLength"));
+		for(int i= 0 ;i < length;i++){
+		 greensModel.setMenuid(Integer.parseInt(request.getParameter("selectedIDs["+i+"]")));
+		 result = greensService.deleteById(greensModel);
+		}
+	}
+	 response.setCharacterEncoding("utf-8");
+	 PrintWriter out = response.getWriter();
+	 Map<String, String> map = new HashMap<>();
+	 List<Map<String, String>> list = new ArrayList<>();
+	 if (result > 0) {
+		map.put("msg", "成功");
+	}else{
+		map.put("msg", "失败");
+	}
+	 list.add(map);
+	 String json = JSONArray.fromObject(list).toString();
+	 out.print(json);
+	 out.flush();
+	 out.close();
+	 System.out.println("result:"+result);
+		return null;
+	}
+
+	// easyui 页面 添加菜
+	@RequestMapping("/insert")
+	public String re(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	
+		GreensModel greensModel = new GreensModel();
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		System.out.println("##"+request.getParameter("foodName"));
+		System.out.println("##"+request.getParameter("userid"));
+		
+		//
+		String savePath = request.getServletContext().getRealPath("/upload");
+		System.out.println("savePath:"+savePath);
+		//
+		
+		// 文件上传
+	//	File uploadPath = new File("C:\\Users\\Administrator\\workspace\\T_ms\\WebContent\\resource\\upload");
+		File uploadPath = new File(savePath);
+		System.out.println("文件绝对路径："+ uploadPath.getAbsolutePath());
+		if (!uploadPath.exists()) { // 如果上传文件的目录不存在，则创建之
+			uploadPath.mkdir();
+			System.out.println("创建文件");
+		}
+		System.out.println("文件路径："+uploadPath.getPath() + "--" + uploadPath.getAbsolutePath());
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		String foodName = "";
+		String fileName = "";
+		int result = 0;
+
+		if (isMultipart) {
+
+			FileItemFactory factory = new DiskFileItemFactory();
+			ServletFileUpload upload = new ServletFileUpload(factory);
+
+			List<FileItem> items;
+			items = upload.parseRequest(request);
+			Iterator<FileItem> iterator = items.iterator();
+			while (iterator.hasNext()) {
+				FileItem item = (FileItem) iterator.next();
+				if (item.isFormField()) {
+					System.out.println("item.getFieldName()" + item.getFieldName());
+					if ("foodName".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						greensModel.setGrename(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("type".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						greensModel.setType(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("state".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("oriPrice".equals(item.getFieldName())) {
+						System.out.println("oriPrice:"+item.getString());
+						greensModel.setOriprice(new BigDecimal(item.getString()));
+					}
+					if ("curPrice".equals(item.getFieldName())) {
+						System.out.println("curPrice:"+item.getString());
+						greensModel.setCurprice(new BigDecimal(item.getString()));
+					}
+					if ("state".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						greensModel.setState(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+
+				}
+
+				fileName = item.getName();
+				if (fileName != null) {
+					File file = new File(fileName);
+					File saveFile = new File(uploadPath, file.getName());
+					String pictureUrl = saveFile.getPath().substring(saveFile.getPath().indexOf("upload")+7, saveFile.getPath().length());
+					greensModel.setPictureurl(pictureUrl);
+					System.out.println("fileName:"+fileName);
+					item.write(saveFile);
+				}
+			}
+			greensModel.setMerid(11);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			greensModel.setTime(sdf.format(new Date()));
+			//greensModel.setState("已启用");
+			System.out.println(greensModel.toString());
+			result = greensService.insertGreens(greensModel);
+			System.out.println("result"+result);
+		}
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		if (result > 0) {
+			map.put("msg", "成功");
+			System.out.println("添加成功");
+		}else {
+			map.put("msg", "失败");
+		}
+		
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		out.print(json);
+		out.flush();
+		out.close();
+
+		return null;
+	}
+
+	@RequestMapping("/add")
+	public String add(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		GreensModel greensModel = new GreensModel();
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		// 文件上传
+		File uploadPath = new File("F://images//upload");
+
+		if (!uploadPath.exists()) { // 如果上传文件的目录不存在，则创建之
+			uploadPath.mkdir();
+		}
+		System.out.println(uploadPath.getPath() + "" + uploadPath.getAbsolutePath());
+
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		String foodName = "";
+		String fileName = "";
+		try {
+			if (isMultipart) {
+
+				FileItemFactory factory = new DiskFileItemFactory();
+				ServletFileUpload upload = new ServletFileUpload(factory);
+
+				List<FileItem> items;
+				items = upload.parseRequest(request);
+				Iterator<FileItem> iterator = items.iterator();
+				while (iterator.hasNext()) {
+					FileItem item = (FileItem) iterator.next();
+					if (item.isFormField()) {
+						System.out.println("item.getFieldName()" + item.getFieldName());
+						if ("food_name".equals(item.getFieldName())) {
+							greensModel.setGrename(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						}
+						if ("food_type".equals(item.getFieldName())) {
+							greensModel.setType(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+							// foodType = item.getString();
+							// System.out.println(foodType);
+							// foodType = new
+							// String(foodType.getBytes("ISO8859-1"),"utf-8");
+							// System.out.println(foodType);
+						}
+						if ("food_describe".equals(item.getFieldName())) {
+							// greensModel.set
+						}
+						if ("oriprice".equals(item.getFieldName())) {
+							greensModel.setOriprice(new BigDecimal(item.getString()));
+						}
+						if ("curprice".equals(item.getFieldName())) {
+							greensModel.setCurprice(new BigDecimal(item.getString()));
+						}
+						
+
+					}
+
+					fileName = item.getName();
+					if (fileName != null) {
+						File file = new File(fileName);
+						File saveFile = new File(uploadPath, file.getName());
+						fileName = fileName.substring(fileName.lastIndexOf("//") + 1, fileName.length());
+						greensModel.setPictureurl(saveFile.getAbsolutePath());
+						System.out.println(fileName);
+						item.write(saveFile);
+
+					}
+					System.out.println("帐号：" + foodName + "，头像路径：" + fileName);
+				}
+				greensModel.setMerid(11);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				greensModel.setTime(sdf.format(new Date()));
+				greensModel.setState("已启用");
+				System.out.println(greensModel.toString());
+				greensService.insertGreens(greensModel);
+			}
+
+			Map<String, String> map = new HashMap<>();
+			List<Map<String, String>> list = new ArrayList<>();
+			map.put("msg", "成功");
+			list.add(map);
+			// response.setCharacterEncoding("utf-8");
+			PrintWriter out = response.getWriter();
+			String json = JSONArray.fromObject(list).toString();
+			out.println(json);
+			out.close();
+		} catch (FileUploadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "listBySearch.do";
+	}
+
+	@RequestMapping("/backstage")
+	public ModelAndView backIndex(HttpServletRequest request, HttpServletResponse response) {
+		request.getSession().invalidate();
+		return new ModelAndView("/bsm/login.jsp");
+	}
+////前台 根据商户id 查询菜单
+//	@RequestMapping("/listByPage")
+//	public ModelAndView listByPage(HttpServletRequest request, HttpServletResponse response) {
+//		Integer page;
+//		Integer merid = null;
+//		if (request.getParameter("pageNo") == null) {
+//			page = 1;
+//		} else {
+//			page = Integer.parseInt(request.getParameter("pageNo"));
+//		}
+//		if (request.getParameter("merid") != null) {
+//			merid = Integer.parseInt(request.getParameter("merid"));
+//		}
+//		merid = 11;
+//		
+//		List<GreensModel> list = greensService.listByPage(page, 6,merid );
+//		PageModel<GreensModel> pageModel = new PageModel<>();
+//		pageModel.setList(list);
+//		pageModel.setPageNo(page);
+//		pageModel.setPageSize(6);
+//		pageModel.setTotalCount(greensService.getTotal(merid).intValue());
+//		System.out.println(greensService.getTotal(merid).intValue());
+//		System.out.println("菜单查询"+pageModel.getList().size()+"pageNo"+pageModel.getPageNo());
+//		return new ModelAndView("/index.jsp", "pageModel", pageModel);
+//	}
+
+//	@RequestMapping("/listTest")
+//	public ModelAndView listTest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		Integer page;
+//		Integer merid = null;
+//		if (request.getParameter("pageNo") == null) {
+//			page = 1;
+//		} else {
+//			page = Integer.parseInt(request.getParameter("pageNo"));
+//		}
+//		if (request.getParameter("merid") != null) {
+//			merid = Integer.parseInt(request.getParameter("merid"));
+//		}
+//		merid = 11;
+//		
+//		List<GreensModel> list = greensService.listByPage(page, 6,merid );
+//		PageModel<GreensModel> pageModel = new PageModel<>();
+//		pageModel.setList(list);
+//		pageModel.setPageNo(page);
+//		pageModel.setPageSize(6);
+//		pageModel.setTotalCount(greensService.getTotal(merid).intValue());
+//		System.out.println(greensService.getTotal(merid).intValue());
+//		System.out.println("菜单查询"+pageModel.getList().size()+"pageNo"+pageModel.getPageNo());
+//		response.setCharacterEncoding("utf-8");
+//		PrintWriter out = response.getWriter();
+//		String json  = JSONArray.fromObject(list).toString();
+//		out.print(json);
+//		out.flush();
+//		out.close();
+//		return null;
+//	}
+
+
+	
+
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e, HttpServletRequest request) {
+		e.printStackTrace();
+		request.setAttribute("exception", e);
+		return "/error.jsp";
+	}
+
+
+}

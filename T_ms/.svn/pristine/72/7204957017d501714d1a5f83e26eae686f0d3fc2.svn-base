@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.AccountMapper">
+
+	<insert id="insertUser" parameterType="AccountModel">
+	insert into
+	account(id,username,password,email,address)values(#{accountId},#{username},#{password},#{email},#{address})
+    </insert>
+    
+    <delete id="deleteUser" parameterType="AccountModel">
+     delete from account  where username = #{username}
+  	</delete>
+  	<select id="findAll" resultType="AccountModel">
+  	select * from account 
+  	</select>
+  	<update id="updateUser" parameterType="AccountModel">
+  	update account set username = #{username} , password = #{password} where id = #{accountId}
+  	</update>
+  	<!-- 传入多个参数 -->
+  	<select id="listByPage" resultType="AccountModel">
+  		select * from account where username= #{2} limit #{0} , #{1}
+  	</select>
+  	<select id="getTotal" resultType="java.lang.Long" > 
+  		select count(*) from account
+  	</select>
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="AccountModel" parameterType="java.util.Map">
+  		select * from account where 1 = 1
+  		<if test="searchType == 'username'">
+  		 and username like '%${searchField}%'
+  		</if>
+  		limit #{pageNo},#{pageSize}
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from account where 1=1 
+  		<if test="searchType == 'username'">
+  		and username like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

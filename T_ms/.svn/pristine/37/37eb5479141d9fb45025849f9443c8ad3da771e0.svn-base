@@ -1,0 +1,357 @@
+App = {
+	/**
+	 * 给占位符赋值
+	 * 	第一个参数为带有占位符的字符串、后面的参数为替代占位符的字符串
+	 */
+	formatStr: function() {
+		var ary = [];
+		for(i = 1; i < arguments.length; i++) {
+			ary.push(arguments[i]);
+		}
+		return arguments[0].replace(/\{(\d+)\}/g, function(m, i) {
+			return ary[i];
+		});
+	},
+
+	/**
+	 *跳转页面传递参数
+	 * 注意：JSON.stringify(params) 非常重要
+	 */
+	redirect: function(url, params) {
+		sessionStorage.setItem("_parameters", JSON.stringify(params));
+		window.location.href = url;
+	},
+
+	/**
+	 * 获取缓存中的参数
+	 */
+	getParams: function() {
+		var p = sessionStorage.getItem("_parameters");
+		var params = JSON.parse(p);
+		return params;
+	},
+
+	/**
+	 * 验证手机号
+	 */
+	//		checkPhoneNum:function(phone){       //  号码验证
+	//			phone = phone.replace(/-/g,"");    //其中g表示全局替换
+	//			var tel = /^((86)|(\+86))?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+	//			if(!tel.test(phone)){
+	//			return false;
+	//			}else{
+	//				return true;
+	//			}
+	//		},
+	checkPhoneNum: function() {
+		var tel = /^((86)|(\+86))?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+		return tel;
+	},
+
+	/**
+	 * 获取通过地址传递过来的参数
+	 */
+	GetQueryString: function(name) {
+		try {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg);
+			if(r != null) {
+				return decodeURI("" + r[2] + "");
+			}
+			return null;
+		} catch(e) {
+			alert(e);
+		}
+	},
+
+	/**
+	 * 获取当前日期的前n天日期（n可正可负，正代表前几天，负代表后几天）
+	 */
+	getTime: function(n) {
+		var now = new Date;
+		now.setDate(now.getDate() - n);
+		return App.formatDate(now);
+	},
+
+	/**
+	 * 格式化时间
+	 */
+	formatDate: function(data) {
+		var frtDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
+		return frtDate;
+	},
+
+	/**
+	 * 获取两个日期之间的天数：  日期格式必须为yyyy-MM-dd
+	 */
+
+	getDays: function(beforeDate, lastDate) {
+		var d1 = new Date(beforeDate);
+		var d2 = new Date(lastDate);
+		var date = (d2 - d1) / (24 * 60 * 60 * 1000);
+		return date;
+	},
+
+	/**
+	 * 金额大写
+	 * @param {Object} num
+	 */
+	fmtNumber2Chinese: function(num) {
+		if(!/^\d*(\.\d*)?$/.test(num)) throw(new Error(-1, "Number is wrong!"));
+		var AA = new Array("零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖");
+		var BB = new Array("", "拾", "佰", "仟", "萬", "億", "圆", "");
+		var CC = new Array("角", "分", "厘");
+		var a = ("" + num).replace(/(^0*)/g, "").split("."),
+			k = 0,
+			re = "";
+		for(var i = a[0].length - 1; i >= 0; i--) {
+			switch(k) {
+				case 0:
+					re = BB[7] + re;
+					break;
+				case 4:
+					if(!new RegExp("0{4}\\d{" + (a[0].length - i - 1) + "}$").test(a[0]))
+						re = BB[4] + re;
+					break;
+				case 8:
+					re = BB[5] + re;
+					BB[7] = BB[5];
+					k = 0;
+					break;
+			}
+			if(k % 4 == 2 && a[0].charAt(i) == "0" && a[0].charAt(i + 2) != "0") re = AA[0] + re;
+			if(a[0].charAt(i) != 0) re = AA[a[0].charAt(i)] + BB[k % 4] + re;
+			k++;
+		}
+		if(a.length > 1) {
+			re += BB[6];
+			for(var i = 0; i < a[1].length; i++) {
+				re += AA[a[1].charAt(i)] + CC[i];
+				if(i == 2) break;
+			}
+			if(a[1].charAt(0) == "0" && a[1].charAt(1) == "0") {
+				re += "元整";
+			}
+		} else {
+			re += "元整";
+		}
+		return re;
+	},
+
+	/**
+	 * 将一个页面插入到另一个页面中
+	 * @param {Object} insertHtml
+	 * @param {Object} element
+	 */
+	insertHtml: function(insertHtml, element) {
+		$.get(insertHtml, {}, function(tpl_html) {
+			element.html(tpl_html)
+		});
+	},
+
+	/**
+	 * 验证码倒计时
+	 * @param 倒计时时间  val
+	 * @param 绑定元素     sertName
+	 */
+	settime: function(val, sertName) {
+		if(val == 0) {
+			sertName.val("点击发送")
+			return;
+		} else {
+			sertName.val("还有" + val + "秒重新发送")
+			val--;
+		}
+		setTimeout(function() {
+			App.settime(val, sertName) //此处引用settime一定要用App加点
+		}, 1000)
+	},
+	/**
+	 * 请求后台
+	 */
+	//	gotoAjax: function(url, Param) {
+	//		$.ajax({
+	//			type: "post",
+	//			url: url,
+	//			data: Param,
+	//			cache: false,
+	//			async: false,
+	//			dataType: "json",
+	//			success: function(data, textStatus, jqXHR) {
+	//				if("true" == data.flag) {
+	//					alert("合法！");
+	//					return true;
+	//				} else {
+	//					alert("不合法！错误信息如下：" + data.errorMsg);
+	//					return false;
+	//				}
+	//			},
+	//			error: function(XMLHttpRequest, textStatus, errorThrown) {
+	//				alert("请求失败！");
+	//			}
+	//		});
+	//	}
+
+	apply: function(defaults, options) {
+		if(defaults && options) {
+			for(var property in options) {
+				defaults[property] = options[property];
+			}
+		}
+		return defaults;
+	},
+
+	/**
+	 *封装ajax请求 
+	 */
+	AJAX: function(type, url, callback) {
+		if(type == null) {
+
+		}
+
+		var json = "";
+		$.ajax({
+			type: type,
+			url: url,
+			//		success:callback;
+			success: function(data) {
+				console.log(data)
+				json = eval("(" + data + ")");
+				callback(json)
+			},
+			error: function(e) {
+				console.log(e)
+				json = eval("(" + e + ")");
+				return json;
+			}
+		});
+	},
+	
+	/**
+	 * 判断是请求后台还是静态资源
+	 */
+	getSuffix:function(url){
+		var type=url.split(".");
+		var JS=type[type.length-1].valueOf();
+		if(JS=="js"){
+			var Type="get"
+		}else{
+			var Type="post"
+		}
+		return Type;
+	},
+	
+	/**
+	 * 封装ajax请求2
+	 * params：上送字段
+	 * url:请求地址
+	 * callback:成功时的回调函数
+	 */
+	AJAX2: function(params, url, callback) {
+		var Type=App.getSuffix(url)
+		$.ajax({
+			data:params,
+			url: url,
+			type: Type, 		//TODO
+			datatype: "json",
+			contentType: 'application/json;charset=utf-8',
+			error: function(data) {
+				alert("失败" + data.MSG);
+			},
+			success: function(data) {
+				console.log(data)
+				json = eval("(" + data + ")");
+				callback(json)
+			}
+		});
+	},
+	
+	/**
+	 * 表单校验
+	 * @param {Object} pages：为需要验证必输项的公共父节点
+	 * data-type="req"在页面中添加这个属性表示该元素必输
+	 * placeholder="请输入密码"：提示内容
+	 */
+	validator:function(pages) {
+		var name = pages.find($("input"))
+		var flag = true;
+		name.each(function() {
+			var item = $(this);
+			var dataRequired = item.attr("data-required")
+			if(dataRequired == "req") {
+				if(item.val() == null || item.val() == "") {
+					var remind = item.attr("placeholder")
+					alert(remind);
+					flag = false;
+					return false;
+				}
+			}
+			
+			//长度校验
+			if(!App.minLength(item)) {
+				flag = false;
+				return false;
+			}
+			
+			if(item.attr("data-type") == "phone") {
+				if(!App.checkPhone(item)){
+					flag = false;
+					return false;
+				}
+			}
+			
+			if(item.attr("data-type") == "money") {
+				if(!App.checkMoney(item)){
+					flag = false;
+					return false;
+				}
+			}
+
+		});
+
+		return flag;
+	},
+
+	/**
+	 * 最小长度校验
+	 */
+	minLength:function (item) {
+		var i = item.val().length;
+		var j = item.attr("min-length");
+		var k = item.attr("data-name")
+		if(i < j) {
+			alert(k+"长度不能小于" + j);
+
+		} else {
+			return true;
+		}
+	},
+
+	/**
+	 * 手机号校验
+	 */
+	checkPhone:function(item) {
+		var value = item.val();
+		var tel = /^0?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+		if(!tel.test(value)) {
+			alert("手机号格式不正确")
+			return false;
+		} else {
+			return true;
+		}
+	},
+	/**
+	 * 金额验证
+	 */
+	checkMoney:function (item) {
+		var value = item.val();
+		if(isNaN(value/1)){
+			alert("输入金额格式有误")
+			return false;
+			
+		}else{
+			return true;
+			
+		}
+	},
+}

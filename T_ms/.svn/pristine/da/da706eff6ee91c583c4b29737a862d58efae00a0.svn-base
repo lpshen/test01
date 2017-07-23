@@ -1,0 +1,144 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>添加地址</title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js" ></script>
+	<script type="text/javascript" >
+	function buy(){//在之前检查用户登录状态
+		var menuid = $('#menuid').val();
+		alert('buy'+menuid);
+	}
+	function addCart(){//在之前检查用户登录状态
+		var menuid = $('#menuid').val();
+		alert('addCart'+menuid);
+		$.ajax({
+			type:"post",
+			url:"${pageContext.request.contextPath}/cart/insert.do",
+			data:{
+			menuid:$('#menuid').val(),
+		    userid:$('#userid').val(),
+		    good:$('#good').val(),
+		    pictureurl:$('#pictureurl').val(),
+		    oriprice:$('#oriprice').val(),
+		    curprice:$('#curprice').val()
+			},
+			dataType:"json",
+			success:function(data){}
+		});
+	}
+	function add(){
+		var count =parseInt($('#count').val());
+		if(count < 100){
+			count += 1;
+			$('#count').val(count);
+		}else{
+			alert('数值过大!');
+		}
+	}
+	function sub(){
+		var count =parseInt($('#count').val());
+		if(count > 1){
+			count -= 1;
+			$('#count').val(count);
+		}
+	}
+	$(function(){
+		$("#province").change(function(){
+			if($(this).val() == 2){
+				return;
+			}
+			$.ajax({
+				type:"post",
+				url:"${pageContext.request.contextPath}/area/listBySearch.do",
+				data:{
+				parent_id:$(this).val(),
+			    type:3 //市级
+			    }, 
+				dataType:"json",
+				success:function(data){
+					$("#city").empty();
+					$("#area").empty();
+					$("#city").append("<option value='"+2+"'>请选择</option>");
+					for(var i = 0;i<data.length;i++){
+						$("#city").append("<option value='"+data[i].code+"'>"+data[i].name+"</option>");						
+					}
+				}
+			});
+			
+		})
+		$("#city").change(function(){
+			if($(this).val() == 2){
+				return;
+			}
+			$("#area").empty();
+			$.ajax({
+				type:"post",
+				url:"${pageContext.request.contextPath}/area/listBySearch.do",
+				data:{
+				parent_id:$(this).val(),
+			    type:4 //区级
+			    }, 
+				dataType:"json",
+				success:function(data){
+					for(var i = 0;i<data.length;i++){
+						$("#area").append("<option value='"+data[i].code+"'>"+data[i].name+"</option>");						
+					}
+				}
+			});
+			
+		})
+	})
+	
+	</script>
+	<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css" rel="stylesheet" type="text/css" />
+<body>
+<jsp:include  page="head.jsp"/> 
+<div id="main">
+	<div id="left">
+		<jsp:include page="left.jsp"/>
+	</div>
+	<div id="med">
+	<!-- 主要部分 -->
+	<br>
+		<form id ="addAddress" action="${pageContext.request.contextPath}/address/addSubmit.do" method="post">
+		<table align="center">
+		<tr>
+			<td>
+				<select id="province" name="province">
+					<option value="2">请选择</option>
+					<c:forEach items="${provinces}" var="province">
+						<option value="${province.code}">${province.name}</option>
+					</c:forEach>
+				</select>
+				<select id="city" name="city">
+					<option value="2">请选择</option>
+				</select>
+				<select id="area" name="area">
+					<option value="2">请选择</option>
+				</select>
+			</td>	
+		</tr>
+		<tr><td>详细地址：&nbsp;<input id= "address" name = "address" type="text"></td></tr>
+		<tr><td>邮编：&nbsp;&nbsp;&nbsp;<input id= "postcode" name ="postcode" type="text"></td></tr>
+		<tr><td>收件人：&nbsp;&nbsp;<input id="name" name="name" type="text"></td></tr>
+		<tr><td>收件人电话：<input id="phonenum" name = "phonenum" type="text"></td></tr>
+		<tr><td><input id="userid" name ="userid" type="hidden" value="2"></td></tr>
+		<tr><td align="center"><input id="submit" name="submit" type="submit" value="保存">
+				<input id="reset" name="reset" type="reset" value="取消"></td></tr>
+		</table>
+		</form>
+	<!-- 主要部分结束 -->
+	</div>
+	<div id="right">
+		<jsp:include page="right.jsp"/>
+	</div>
+</div>
+<jsp:include  page="bottom.jsp"/> 
+
+</body>
+</html>

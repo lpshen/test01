@@ -1,0 +1,14 @@
+package com.bms.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import com.bms.model.AwardMenuModel;
+import com.bms.model.AwardModel;
+
+public interface AwardMapper {
+
+	List<AwardModel> list();//查询
+	int add(AwardModel awardModel);//添加
+
+}

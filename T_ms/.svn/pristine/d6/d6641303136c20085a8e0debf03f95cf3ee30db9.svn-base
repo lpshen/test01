@@ -1,0 +1,226 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="com.bms.model.*"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>DeathGhost-充值中心</title>
+<meta name="keywords" content="DeathGhost,DeathGhost.cn,web前端设,移动WebApp开发" />
+<meta name="description" content="DeathGhost.cn::H5 WEB前端设计开发!" />
+<meta name="author" content="DeathGhost"/>
+<link href="${pageContext.request.contextPath}/style/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/public.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/jqpublic.js"></script>
+<!--
+Author: DeathGhost
+Author URI: http://www.deathghost.cn
+-->
+</head>
+<body>
+<%
+if (session.getAttribute("user") == null){
+	request.getRequestDispatcher("login.jsp").forward(request, response);
+}
+%>
+<header>
+ <section class="Topmenubg">
+  <div class="Topnav">
+   <div class="LeftNav">
+ <% UserModel user = (UserModel)session.getAttribute("user");
+		if (user != null){
+			%>欢迎，<%=user.getUsername()%> <a href="logout.user">退出</a> <%}else{ %>
+    <a href="register.jsp">注册</a>/<a href="login.jsp">登录</a><%} %><a href="#">QQ客服</a><a href="#">微信客服</a><a href="#">手机客户端</a>
+   </div>
+   <div class="RightNav">
+       <a href="${pageContext.request.contextPath}/jsp/index.jsp">首页</a><a href="user_center.jsp">用户中心</a> <a href="list.orders" target="_blank" title="我的订单">我的订单</a> <a href="list.cart">购物车（0）</a> <a href="user_favorites.jsp" target="_blank" title="我的收藏">我的收藏</a> <a href="#">商家入驻</a>
+   </div>
+  </div>
+ </section>
+ <div class="Logo_search">
+  <div class="Logo">
+   <img src="${pageContext.request.contextPath}/images/logo.jpg" title="DeathGhost" alt="模板">
+   <i></i>
+   <span>合肥市 [ <a href="#">蜀山区</a> ]</span>
+  </div>
+  <div class="Search"> 
+   <form method="get" id="main_a_serach" onsubmit="return check_search(this)">
+   <div class="Search_nav" id="selectsearch">
+    <a href="javascript:;" onClick="selectsearch(this,'restaurant_name')" class="choose">餐厅</a>
+    <a href="javascript:;" onClick="selectsearch(this,'food_name')">食物名</a>
+   </div>
+   <div class="Search_area"> 
+   <input type="search" id="fkeyword" name="keyword" placeholder="请输入您所需查找的餐厅名称或食物名称..." class="searchbox" />
+   <input type="submit" class="searchbutton" value="搜 索" />
+   </div>
+   </form>
+   <p class="hotkeywords"><a href="#" title="酸辣土豆丝">酸辣土豆丝</a><a href="#" title="这里是产品名称">螃蟹炒年糕</a><a href="#" title="这里是产品名称">牛奶炖蛋</a><a href="#" title="这里是产品名称">芝麻酱凉面</a><a href="#" title="这里是产品名称">滑蛋虾仁</a><a href="#" title="这里是产品名称">蒜汁茄子</a></p>
+  </div>
+ </div>
+ <nav class="menu_bg">
+  <ul class="menu">
+   <li><a href="index.jsp">首页</a></li>
+   <li><a href="list.jsp">订餐</a></li>
+   <li><a href="category.jsp">积分商城</a></li>
+   <li><a href="article_read.jsp">关于我们</a></li>
+  </ul>
+ </nav>
+</header>
+<!--Start content-->
+<section class="Psection MT20">
+<nav class="U-nav Font14 FontW">
+  <ul>
+   <li><i></i><a href="user_center.jsp">用户中心首页</a></li>
+   <li><i></i><a href="list.orders">我的订单</a></li>
+   <li><i></i><a href="list.address">收货地址</a></li>
+   <li><i></i><a href="user_message.jsp">我的留言</a></li>
+   <li><i></i><a href="user_coupon.jsp">我的优惠券</a></li>
+   <li><i></i><a href="user_favorites.jsp">我的积分</a></li>
+   <li><i></i><a href="user_account.jsp">账户管理</a></li>
+   <li><i></i><a href="user_account.jsp">充值中心</a></li>
+   <li><i></i><a href="logout.user">安全退出</a></li>
+  </ul>
+ </nav>
+ <article class="U-article Overflow">
+  <!--"引用“user_page/user_index.jsp”"-->
+  <section class="usercenter">
+   <span class="Weltitle Block Font16 CorRed FontW Lineheight35">Welcome欢迎光临！</span>
+   <div class="U-header MT20 Overflow">
+    <img src="${pageContext.request.contextPath}/upload/testuser.jpg">
+    <p class="Font14 FontW">DeathGhost 欢迎您来到 充值中心！</p>
+    <p class="Font12">您的上一次登录时间:<time> 2016-05-18 14:20:04</time></p>
+    <p class="Font14 CorRed FontW">我的余额：100.00 ￥</p>
+   </div>
+    <ul class="s-States Overflow FontW" id="Lbn">
+     <li class="Font14 FontW">业务提醒：</li>
+     <li><a href="../recharge/listByPageCZ.do?userid=${user.getId()}&type=CZJL">充值记录</a></li>
+     <li><a href="#">在线充值</a></li>
+     <li><a href="#">门店充值</a></li>
+     <li><a href="../recharge/listByPageZF.do?userid=${user.getId()}&type=ZFJL">支付记录</a></li>
+    </ul>
+    <c:choose>
+    	<c:when test="${type =='CZJL' }">
+    		<table class="Myorder">
+    			<tr><th class="Font14 FontW">编号</th>
+    				<th class="Font14 FontW">用户Id</th>
+     				<th class="Font14 FontW">充值金额</th>
+    				<th class="Font14 FontW">充值时间</th>
+    				<th class="Font14 FontW">充值方式</th>
+    			</tr>
+    		<%PageModel pageModel = (PageModel)request.getAttribute("pageModel");
+    			List<RechargeRecordModel> list =(List)pageModel.getList();
+    			for(RechargeRecordModel rechargeRecordModel : list){
+    		%>
+    		<tr>
+    			<td><%=rechargeRecordModel.getId() %></td>
+    			<td><%=rechargeRecordModel.getUserId() %></td>
+    			<td><%=rechargeRecordModel.getMoney() %></td>
+    			<td><%=rechargeRecordModel.getTime() %></td>
+    			<td></td>
+    		</tr>
+    		<%} %>
+    		
+    	   </table>
+    	   <div class="TurnPage">
+         <a href="../recharge/listByPageCZ.do?userid=${user.getId()}&type=CZJL&pageNo=<%=pageModel.getFirstPage()%>">
+          <span class="Prev"><i></i>首页</span>
+         </a>
+         <a href="../recharge/listByPageCZ.do?userid=${user.getId()}&type=CZJL&pageNo=<%=pageModel.getPreviousPage()%>"><span class="PNumber">上一页</span></a>
+         <a href="../recharge/listByPageCZ.do?userid=${user.getId()}&type=CZJL&pageNo=<%=pageModel.getNextPage() %>"><span class="PNumber">下一页</span></a>
+         <a href="../recharge/listByPageCZ.do?userid=${user.getId()}&type=CZJL&pageNo=<%=pageModel.getLastPage() %>">
+         <span class="Next">最后一页<i></i></span>
+        </a>
+       </div>
+    		
+    	</c:when>
+    	<c:when test="${type =='ZFJL' }">
+    		<table class="Myorder">
+    			<th class="Font14 FontW">编号</th>
+    			<th class="Font14 FontW">用户Id</th>
+     			<th class="Font14 FontW">支付金额</th>
+     			<th class="Font14 FontW">支付时间</th>
+     			<th class="Font14 FontW">订单编号</th>
+    	  
+    	   <%PageModel pageModel = (PageModel)request.getAttribute("pageModel");
+    			List<PayRecordModel> list =(List)pageModel.getList();
+    			for(PayRecordModel payRecordModel : list){
+    		%>
+    		<tr>
+    			<td><%=payRecordModel.getId() %></td>
+    			<td><%=payRecordModel.getUserId() %></td>
+    			<td><%=payRecordModel.getMoney() %></td>
+    			<td><%=payRecordModel.getTime() %></td>
+    			<td><%=payRecordModel.getOrdernum() %></td>
+    		</tr>
+    		<%} %>
+    		
+    	   </table>
+    	   <div class="TurnPage">
+         <a href="../recharge/listByPageZF.do?userid=${user.getId()}&type=ZFJL&pageNo=<%=pageModel.getFirstPage()%>">
+          <span class="Prev"><i></i>首页</span>
+         </a>
+         <a href="../recharge/listByPageZF.do?userid=${user.getId()}&type=ZFJL&pageNo=<%=pageModel.getPreviousPage()%>"><span class="PNumber">上一页</span></a>
+         <a href="../recharge/listByPageZF.do?userid=${user.getId()}&type=ZFJL&pageNo=<%=pageModel.getNextPage() %>"><span class="PNumber">下一页</span></a>
+         <a  href="../recharge/listByPageZF.do?userid=${user.getId()}&type=ZFJL&pageNo=<%=pageModel.getLastPage() %>"><span class="Next">最后一页<i></i></span>
+        </a>
+       </div>
+    	</c:when>
+    </c:choose>
+    
+  </section>
+ </article>
+ 
+</section>
+<!--End content-->
+
+<footer>
+ <section class="Otherlink">
+  <aside>
+   <div class="ewm-left">
+    <p>手机扫描二维码：</p>
+    <img src="${pageContext.request.contextPath}/images/Android_ico_d.gif">
+    <img src="${pageContext.request.contextPath}/images/iphone_ico_d.gif">
+   </div>
+   <div class="tips">
+    <p>客服热线</p>
+    <p><i>1830927**73</i></p>
+    <p>配送时间</p>
+    <p><time>09：00</time>~<time>22:00</time></p>
+    <p>网站公告</p>
+   </div>
+  </aside>
+  <section>
+    <div>
+    <span><i class="i1"></i>配送支付</span>
+    <ul>
+     <li><a href="article_read.jsp" target="_blank" title="标题">支付方式</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">配送方式</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">配送效率</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">服务费用</a></li>
+    </ul>
+    </div>
+    <div>
+    <span><i class="i2"></i>关于我们</span>
+    <ul>
+     <li><a href="article_read.jsp" target="_blank" title="标题">招贤纳士</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">网站介绍</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">配送效率</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">商家加盟</a></li>
+    </ul>
+    </div>
+    <div>
+    <span><i class="i3"></i>帮助中心</span>
+    <ul>
+     <li><a href="article_read.jsp" target="_blank" title="标题">服务内容</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">服务介绍</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">常见问题</a></li>
+     <li><a href="article_read.jsp" target="_blank" title="标题">网站地图</a></li>
+    </ul>
+    </div>
+  </section>
+ </section>
+<div class="copyright">© 版权所有 2016 DeathGhost 技术支持：<a href="http://www.deathghost.cn" title="DeathGhost">DeathGhost</a></div>
+</footer>
+</body>
+</html>

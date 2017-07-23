@@ -1,0 +1,19 @@
+package com.bms.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import com.bms.model.MessageModel;
+
+public interface MessageMapper {
+
+	void insertMessage(MessageModel messageModel);
+	int deleteById(MessageModel messageModel);
+	List<MessageModel> findAll();
+	void updateMessage(MessageModel messageModel);
+	Long getTotalBySearch(Map<String , Object> param);
+	List<MessageModel> listBySearch(Map<String, Object> param);
+
+	List<MessageModel> findByMessage(Map<String, String> param);
+	int reply(MessageModel messageModel);
+}

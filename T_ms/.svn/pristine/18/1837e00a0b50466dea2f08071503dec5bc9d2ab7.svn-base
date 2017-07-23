@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>新建页面</title>
+<!-- <link href='./css/reset.css' rel='stylesheet' />
+ --></head>
+<style type="text/css">
+body {
+	background-color: #EEEEEE;
+	margin: 0px;
+}
+
+#cent {
+	margin: 0px auto;
+	width: 678px;
+	height: 955px;
+	background-image: url("../../image/timg (9).jpg");
+	background-repeat: no-repeat;
+}
+h1{
+	text-align: left;
+    margin-left: 10px;
+    margin-top: 10px;
+    font-size: 33px;
+    font-family: 微软雅黑;
+    line-height: 54px;
+}
+
+ul li{
+	text-align: left;
+	font-size: 20px;
+	margin-top: 20px;
+	font-family: 微软雅黑;
+}
+
+pre{
+	font-size: 28px;
+    text-align: left;
+    font-family: 微软雅黑;
+    }
+
+</style>
+<body>
+	<div id="cent" align="center">
+		<h1>帮助中心</h1>
+		<pre>说明：该说明能帮助用户很好地使用该网站，用户若有
+	疑问可参考该说明</pre>
+		<ul>
+			<li>用户在注册登录后方可使用查看菜品种类、下订单、订座等功能。注意用户名一旦注册将不可修改，且手机号必须能正常使用</li>
+			<li>若用户需要配送请填写用户地址选择需要配送的地址,并确认手机号码是否正常使用，配用时会以电话的方式联系您</li>
+			<li>用户定订需提前2小时，退订请在开席1小时前，若超过预定时间半小时则扣除押金并开发座位</li>
+		</ul>
+	</div>
+</body>
+</html>

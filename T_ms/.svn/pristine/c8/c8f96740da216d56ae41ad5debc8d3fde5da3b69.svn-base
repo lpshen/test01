@@ -1,0 +1,45 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	function test(){
+		alert('1'+value);
+	}
+	function search(){
+		var searchName = $('#searchName').val();
+		var searchType = $('#searchType').val();
+		alert(searchName+" "+searchType);
+	}
+	
+	</script>
+<body>
+		<c:choose>
+			<c:when test="${msg == 'empty1' }">
+				<p>暂时没有订单</p>
+			</c:when>
+			<c:when test="${msg == 'success' }">
+				<c:forEach items="${userOrders }" var="userOrder">
+				<!-- 根据订单的编号查询订单的详细信息 -->
+				<p><a href="#">编号：${userOrder.ordernum}</a></p>
+				<p>总价：${userOrder.totalprice}地址：${userOrder.address}收件人：${userOrder.name}电话：${userOrder.phonenum}状态：${userOrder.paystate}状态：${userOrder.mastate}</p>
+				</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<p>error</p>
+			</c:otherwise>
+		</c:choose>
+
+	<p>${searchType}
+		<a href="">第一页</a>
+		<a href="">上一页</a>
+		<a href="">下一页</a>
+		<a href="">末页</a>
+	</p>
+</body>
+</html>

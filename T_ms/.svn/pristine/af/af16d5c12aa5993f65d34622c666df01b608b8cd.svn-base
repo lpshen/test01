@@ -1,0 +1,30 @@
+	#main{
+		height: 600px;
+		border: 1px solid black;
+		background-color: #F6F6F6
+	}
+	#left{
+		width:15%;
+		height: 100%;
+		border: 1px solid black;
+		float: left;
+	}
+	#med{
+		width:65%;
+		height: 100%;
+		border: 1px solid black;
+		float: left;
+	}
+	#right{
+		width:19%;
+		height: 100%;
+		border: 1px solid black;
+		float: left;
+	}
+	.textStyle{
+		font-family: "微软雅黑", "宋体", "courier new";
+	}
+	a{
+	text-decoration:none;
+	color:green;
+	}

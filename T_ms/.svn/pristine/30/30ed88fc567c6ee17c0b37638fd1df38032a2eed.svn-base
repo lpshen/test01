@@ -1,0 +1,29 @@
+	#main{
+		height: 1000px;
+		border: 1px solid black;
+	}
+	#left{
+		width:180px;
+		height: 1000px;
+		border: 1px solid black;
+		float: left;
+	}
+	#med{
+		width:960px;
+		height: 1000px;
+		border: 1px solid black;
+		float: left;
+	}
+	#right{
+		width:180px;
+		height: 1000px;
+		border: 1px solid black;
+		float: right;
+	}
+	.textStyle{
+		font-family: "微软雅黑", "宋体", "courier new";
+	}
+	a{
+	text-decoration:none;
+	color:green;
+	}

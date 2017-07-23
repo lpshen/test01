@@ -1,0 +1,67 @@
+package com.bms.model;
+
+public class DiningTableModel {
+	private Integer diningTableId;
+	private String tableType;
+	private Integer tableNum;
+	private String updateTime;
+	private String useTime;
+	private String state = "未预定";
+	public DiningTableModel() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public DiningTableModel(Integer diningTableId, String tableType, Integer tableNum, String updateTime,
+			String useTime, String state) {
+		super();
+		this.diningTableId = diningTableId;
+		this.tableType = tableType;
+		this.tableNum = tableNum;
+		this.updateTime = updateTime;
+		this.useTime = useTime;
+		this.state = state;
+	}
+	public Integer getDiningTableId() {
+		return diningTableId;
+	}
+	public void setDiningTableId(Integer diningTableId) {
+		this.diningTableId = diningTableId;
+	}
+	public String getTableType() {
+		return tableType;
+	}
+	public void setTableType(String tableType) {
+		this.tableType = tableType;
+	}
+	public Integer getTableNum() {
+		return tableNum;
+	}
+	public void setTableNum(Integer tableNum) {
+		this.tableNum = tableNum;
+	}
+	public String getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
+	}
+	public String getUseTime() {
+		return useTime;
+	}
+	public void setUseTime(String useTime) {
+		this.useTime = useTime;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+	@Override
+	public String toString() {
+		return "DiningTableModel [diningTableId=" + diningTableId + ", tableType=" + tableType + ", tableNum="
+				+ tableNum + ", updateTime=" + updateTime + ", useTime=" + useTime + ", state=" + state + "]";
+	}
+	
+	
+}

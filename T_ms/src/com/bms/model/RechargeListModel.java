@@ -1,0 +1,80 @@
+package com.bms.model;
+
+import java.math.BigDecimal;
+
+public class RechargeListModel {
+	Integer id;
+	Integer userid;
+	String username;
+	String phonenum;
+	BigDecimal money;//充值金额
+	String  time;
+	Integer operationid;
+	String state;//连表查询 充值记录表与用户表
+	public RechargeListModel() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public RechargeListModel(Integer id, Integer userid, String username, String phonenum, BigDecimal money,
+			String time, Integer operationid, String state) {
+		super();
+		this.id = id;
+		this.userid = userid;
+		this.username = username;
+		this.phonenum = phonenum;
+		this.money = money;
+		this.time = time;
+		this.operationid = operationid;
+		this.state = state;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Integer getUserid() {
+		return userid;
+	}
+	public void setUserid(Integer userid) {
+		this.userid = userid;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPhonenum() {
+		return phonenum;
+	}
+	public void setPhonenum(String phonenum) {
+		this.phonenum = phonenum;
+	}
+	public BigDecimal getMoney() {
+		return money;
+	}
+	public void setMoney(BigDecimal money) {
+		this.money = money;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
+	}
+	public Integer getOperationid() {
+		return operationid;
+	}
+	public void setOperationid(Integer operationid) {
+		this.operationid = operationid;
+	}
+	public String getState() {
+		return state;
+	}
+	public void setState(String state) {
+		this.state = state;
+	}
+
+
+}

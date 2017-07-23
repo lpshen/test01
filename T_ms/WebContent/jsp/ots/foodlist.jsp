@@ -1,0 +1,105 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>商品展示</title>
+</head>
+<script type="text/javascript"
+	src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">
+	function test() {
+		alert('1' + value);
+	}
+	function search() {
+		var searchName = $('#searchName').val();
+		var searchType = $('#searchType').val();
+		alert(searchName + " " + searchType);
+	}
+</script>
+
+<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css"
+	rel="stylesheet" type="text/css" />
+<style type="text/css">
+#med #foodShow {
+	width: 148px;
+	height: 220px;
+	float: left;
+	margin: 10px 27px;
+}
+
+#med #page {
+	width: 100%;
+	height: 50px;
+	float: inherit;
+	border-collapse: 1px;
+}
+
+#med #shopShow {
+	width: 300px;
+	height: 300px;
+	float: left;
+}
+
+#med #search {
+	height: 100px;
+}
+
+#med span, #med p {
+	font-family: 微软雅黑;
+	font-size: 15px;
+}
+
+#page p{
+	line-height: 60px;
+}
+</style>
+<body>
+	<jsp:include page="head.jsp" />
+	<div id="main">
+		<div id="left">
+			<jsp:include page="left.jsp" />
+		</div>
+		<div id="med">
+			<!-- 主要部分 -->
+			<c:forEach items="${pageModel.getList()}" var="greensModel">
+				<div id="foodShow">
+					<a
+						href="${pageContext.request.contextPath}/greens/findOne.do?menuid=${greensModel.menuid}"
+						title="菜品名称"> <img
+						src="${pageContext.request.contextPath}/upload/${greensModel.pictureurl}"
+						height="150" width="150""> <figcaption> <span>${greensModel.grename}</span>
+						</br>
+						<span>${greensModel.type}</span>
+						</br>
+						<span>原价：<i>￥</i><s>${greensModel.oriprice}</s></span>
+						</br>
+						<span>现价：<i>￥</i>${greensModel.curprice}</span> </figcaption>
+					</a>
+				</div>
+
+			</c:forEach>
+			<div id="page">
+				<p align="center">
+					<a
+						href="${pageContext.request.contextPath}/greens/listBySearchQT.do?pageNo=${pageModel.firstPage}&searchName=${searchName}&type=${type}">第一页</a>
+					<a
+						href="${pageContext.request.contextPath}/greens/listBySearchQT.do?pageNo=${pageModel.previousPage}&searchName=${searchName}&type=${type}">上一页</a>
+					<a
+						href="${pageContext.request.contextPath}/greens/listBySearchQT.do?pageNo=${pageModel.nextPage}&searchName=${searchName}&type=${type}">下一页</a>
+					<a
+						href="${pageContext.request.contextPath}/greens/listBySearchQT.do?pageNo=${pageModel.lastPage}&searchName=${searchName}&type=${type}">尾页</a>
+				</p>
+			</div>
+			<!-- 添加分页 -->
+			<!-- 添加分页结束 -->
+			<!-- 主要部分结束 -->
+		</div>
+		<div id="right">
+			<jsp:include page="right.jsp" />
+		</div>
+	</div>
+	<jsp:include page="bottom.jsp" />
+</body>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.MessageMapper">
+
+	<insert id="insertMessage" parameterType="com.bms.model.MessageModel">
+	insert into
+	message(id,userid,adminid,content,reply,state,evaluate,replyid,messagetime,
+	replytime)values(#{id},#{userid},#{adminid},#{content}
+	,#{reply},#{state},#{evaluate},#{replyid},#{messagetime},#{replytime})
+    </insert>
+    
+    <delete id="deleteById" parameterType="com.bms.model.MessageModel">
+     delete from Message  where id = #{id}
+  	</delete>
+  	<select id="findAll" resultType="com.bms.model.MessageModel">
+  	select * from Message 
+  	</select>
+  	<update id="updateMessage" parameterType="com.bms.model.MessageModel">
+  	update Message set password = #{password} where id = #{id}
+  	</update>
+  	<update id="reply" parameterType="com.bms.model.MessageModel">
+  	update message set reply =  #{reply},state = '已回复' where id = #{id} and state != '已回复'
+  	</update>
+
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.MessageModel" parameterType="java.util.Map">
+  		select * from Message where 1 = 1
+  		<if test="messagetime != null">
+  		 and messagetime like '%${messagetime}%'
+  		</if>
+  		<if test="replytime != null">
+  		 and replytime like '%${replytime}%'
+  		</if>
+  		<if test="state != null">
+  		 and state like '%${state}%'
+  		</if>
+  		<if test="userid != null">
+  		 and userid = ${userid}
+  		</if>
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from Message where 1=1 
+  		<if test="searchType == 'phonenum'">
+  		and phonenum like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  	<!-- 查询登录 -->
+  	<select id="findByMessage" resultType="com.bms.model.MessageModel" parameterType="java.util.Map">
+  	select * from Message where Messagename = #{Messagename} and password = #{password}
+  	</select>
+  	<!-- ots 分页显示留言 -->
+  	 	<select id="listByPage" resultType="com.bms.model.MessageModel" parameterType="java.util.Map">
+  		select * from message where 1 = 1
+  		<if test="userid != null">
+  		 and userid = ${userid}
+  		</if>
+  		order by messagetime desc
+  		limit #{pageNo},#{pageSize}
+  		
+  	</select>
+  	<!-- 获取条数 -->
+  	<select id="getTotal" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from message where 1=1 
+  		<if test="userid != null">
+  		and userid =  ${userid}
+  		</if> 
+  		
+  	</select>
+  
+
+  <!-- 
+  <select id="getMessageByMessagename" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

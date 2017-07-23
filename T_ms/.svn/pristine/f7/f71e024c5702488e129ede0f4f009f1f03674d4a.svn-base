@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.AdminMapper">
+
+	<insert id="insertAdmin" parameterType="com.bms.model.AdminModel">
+	insert into
+	admin(id,username,password,role,email,phonenum,time,state)values(#{id},#{username},#{password},#{role},#{email},#{phonenum},#{time},#{state})
+    </insert>
+    
+    <delete id="deleteById" parameterType="com.bms.model.AdminModel">
+     delete from admin  where id = #{id}
+  	</delete>
+  	<select id="findAll" resultType="com.bms.model.AdminModel">
+  	select * from admin 
+  	</select>
+  	<!-- 修改密码 -->
+  	<update id="updateAdminPW"  parameterType="com.bms.model.AdminModel" >
+  	update admin set password = #{password} where id = #{id}
+  	</update>
+  	<update id="updateAdmin" parameterType="com.bms.model.AdminModel">
+  	update admin set email = #{email}, phonenum = #{phonenum} where id = #{id}
+  	</update>
+  	<update id="editState" parameterType="com.bms.model.AdminModel">
+  	update admin set state = #{state} where id = #{id}
+  	</update>
+  	
+
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.AdminModel" parameterType="java.util.Map">
+  		select * from admin where 1 = 1
+  		<if test="role != null">
+  		 and role = '${role}'
+  		</if>
+  		<if test="username != null">
+  		 and username like '%${username}%'
+  		</if>
+  		<if test="time != null">
+  		 and time like '%${time}%'
+  		</if>
+
+  		
+  		
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from admin where 1=1 
+  		<if test="searchType == 'Adminname'">
+  		and Adminname like '%${searchField}%'
+  		</if> 
+  		<if test="searchType == 'Adminname'">
+  		and Adminname like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  	<!-- 查询登录 -->
+  	<select id="findByAdmin" resultType="com.bms.model.AdminModel" parameterType="java.util.Map">
+  	select * from admin where username = #{username} and password = #{password}
+  	</select>
+  	<!-- 根据id查询 -->
+  	<select id="findById" resultType="com.bms.model.AdminModel" parameterType="com.bms.model.AdminModel">
+  	select * from admin where id=#{id}
+  	</select>
+  	<!-- 查询CJGLY数量 -->
+  	<select id="countByCJGLY" resultType="int"> 
+  	select count(*) from admin where role='CJGLY'
+  	</select>
+  	<!-- 查询GLY数量 -->
+  	<select id="countByGLY" resultType="int">
+  	 select count(*) from admin where role='GLY'
+  	</select>
+  	<!-- 查询SH数量 -->
+  	<select id="countBySH" resultType="int">
+  	select count(*) from admin where role='SH'
+  	</select>
+  	<!-- 查询SH数量 -->
+  	<select id="countAll" resultType="int">
+  	select count(*) from admin where 1 = 1
+  	</select>
+  	
+  
+
+  <!-- 
+  <select id="getAdminByAdminname" parameterType="string" resultType="com.huawei.nser.standard.dao.Admin">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_Admin where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addAdmin" parameterType="com.huawei.nser.standard.values.ECAdminValue">
+       insert into ec_Admin(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setAdminPassword" parameterType="com.huawei.nser.standard.dao.Admin">
+   　　　update ec_Admin set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

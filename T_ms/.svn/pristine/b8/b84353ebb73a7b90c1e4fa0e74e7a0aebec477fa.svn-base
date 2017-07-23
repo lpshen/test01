@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	
+	
+<!-- 加载Spring容器配置 -->
+<listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+<!-- 设置Spring容器加载配置文件路径 -->
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath*:applicationContext-*.xml</param-value>
+</context-param>
+<!-- 配置Spring核心控制器 指定对应的controller -->
+<servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/dispatcher-servlet.xml</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+    <servlet-name>dispatcher</servlet-name>
+    <url-pattern>*.do</url-pattern>
+</servlet-mapping>
+<!-- 解决工程编码过滤器 -->
+<filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<welcome-file-list>
+    <welcome-file>jsp/index.jsp</welcome-file>
+  </welcome-file-list>
+  
+  
+  	<jsp-config> 
+	   <taglib> 
+	    <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri> 
+	    <taglib-location>/WEB-INF/c.tld</taglib-location> 
+	   </taglib> 
+	
+	   <taglib> 
+	    <taglib-uri>http://java.sun.com/jsp/jstl/fmt</taglib-uri> 
+	    <taglib-location>/WEB-INF/fmt.tld</taglib-location> 
+	   </taglib> 
+   
+       <taglib> 
+	    <taglib-uri>http://www.springframework.org/tags/form</taglib-uri> 
+	    <taglib-location>/WEB-INF/spring-form.tld</taglib-location> 
+	   </taglib>
+	   
+	   <taglib> 
+	    <taglib-uri>http://www.springframework.org/tags</taglib-uri> 
+	    <taglib-location>/WEB-INF/spring.tld</taglib-location> 
+	   </taglib>
+   </jsp-config> 
+</web-app>

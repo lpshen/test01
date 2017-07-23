@@ -1,0 +1,106 @@
+package com.bms.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bms.ApplicationContextFactory;
+import com.bms.model.PageModel;
+import com.bms.model.ReserveTableModel;
+import com.bms.service.ReserveTableService;
+
+import net.sf.json.JSONArray;
+
+
+@Controller
+@RequestMapping("/reserveTable")
+public class ReserveTableController {
+	private ReserveTableService reserveTableService = (ReserveTableService)ApplicationContextFactory.getInstance().getBean("reserveTableService");
+	@RequestMapping("/insert")
+	public String  insert(HttpServletRequest request,HttpServletResponse response) throws IOException {
+		String msg = "";
+		System.out.println("insert");
+		if (request.getParameter("date") != null&&request.getParameter("tableType") != null
+				&&request.getParameter("useTime") != null&&request.getParameter("diningTableId") != null
+				&&request.getParameter("phoneNum") != null&&request.getParameter("linkMan") != null&&
+				request.getParameter("userId") != null) {
+			ReserveTableModel reserveTableModel = new ReserveTableModel();
+			reserveTableModel.setUserId(Integer.parseInt(request.getParameter("userId")));
+			reserveTableModel.setDiningTableId(Integer.parseInt(request.getParameter("diningTableId")));
+			reserveTableModel.setLinkman(request.getParameter("linkMan"));
+			reserveTableModel.setPhonenum(request.getParameter("phoneNum"));
+			reserveTableModel.setReserveDate(request.getParameter("date"));
+			reserveTableModel.setReserveTime(request.getParameter("useTime"));
+			reserveTableModel.setState("未处理");
+			List<ReserveTableModel> list = reserveTableService.listBySearch(null,Integer.parseInt(request.getParameter("diningTableId")),request.getParameter("date"),request.getParameter("useTime"),"未处理",null,null);
+			System.out.println("list:"+list.size());
+			if (list.size() > 0) {
+				msg = "exists";
+			}else{
+				int result = reserveTableService.insert(reserveTableModel);
+				if (result > 0) {
+					msg="success";
+				}else{
+					msg ="fail";
+				}
+			}
+		}
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		map.put("msg", msg);
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		PrintWriter out = response.getWriter();
+		out.println(json);
+		out.flush();
+		out.close();
+		return null;
+	}
+	@RequestMapping("/listBySearch")
+	public ModelAndView listById(HttpServletRequest request ,HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView("/ots/reserveTableList.jsp");
+		if (request.getParameter("userId") != null&&request.getParameter("userId") != "") {
+			System.out.println("userid444:"+request.getParameter("userId"));
+			Integer userId = Integer.parseInt(request.getParameter("userId"));
+			System.out.println("userid:"+userId);
+			Integer page;
+			if (request.getParameter("pageNo") == null) {
+				page = 1;
+			} else {
+				page = Integer.parseInt(request.getParameter("pageNo"));
+			}
+
+			 List<ReserveTableModel> list = reserveTableService.listBySearch(userId,null, null, null, null, page, 5);
+
+			PageModel<ReserveTableModel> pageModel = new PageModel<>();
+			pageModel.setList(list);
+			pageModel.setPageNo(page);
+			pageModel.setPageSize(5);
+			pageModel.setTotalCount(reserveTableService.getTotalBySearch(userId).intValue());
+			System.out.println(reserveTableService.getTotalBySearch(userId).intValue());
+			modelAndView.addObject("pageModel", pageModel);
+			
+		}else {
+			modelAndView.setViewName("/ots/login.jsp");
+			modelAndView.addObject("msg", "nologin");
+		}
+		return modelAndView;
+	}
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e, HttpServletRequest request) {
+		e.printStackTrace();
+		request.setAttribute("exception", e);
+		return "/error.jsp";
+	}
+}

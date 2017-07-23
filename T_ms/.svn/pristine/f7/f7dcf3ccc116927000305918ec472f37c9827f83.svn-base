@@ -1,0 +1,315 @@
+package com.bms.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bms.common.ApplicationContextFactory;
+import com.bms.model.AddressModel;
+import com.bms.model.CartModel;
+import com.bms.model.PageModel;
+import com.bms.service.AddressService;
+import com.bms.service.CartService;
+
+import net.sf.json.JSONArray;
+
+@Controller
+@RequestMapping("cart")
+public class CartController {
+	private CartService cartService =(CartService) ApplicationContextFactory.getInstance()
+			.getBean("cartService");
+
+	// @RequestMapping("/login")
+	// public ModelAndView login(HttpServletRequest request, HttpServletResponse
+	// response) {
+	// ModelAndView modelAndView = new ModelAndView();
+	// LogLoginService logLoginService = (LogLoginService)
+	// ApplicationContextFactory.getInstance().getBean("logLoginService");
+	// String username = null;
+	// String password = null;
+	// String strCode = null;// session中保存的验证码
+	// if (request.getParameter("username").trim() != null &&
+	// request.getParameter("password").trim() != null
+	// && request.getParameter("authCode") != null) {
+	// strCode = (String) request.getSession().getAttribute("strCode");
+	// if (request.getParameter("authCode").trim().equals(strCode.trim())) {
+	// username = request.getParameter("username").trim();
+	// password = request.getParameter("password").trim();
+	// List<UserModel> list = null;
+	// list = userService.findByUser(username, password);
+	//
+	// if (list.size() != 0) {
+	// UserModel userModel = list.get(0);
+	// if (userModel.getUsername() != null) {//登录成功
+	// modelAndView.setViewName("/index.jsp");
+	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+	// LogLoginModel logLoginModel = new LogLoginModel();
+	// logLoginModel.setRole("YH");
+	// logLoginModel.setUserid(userModel.getId());
+	// logLoginModel.setUsername(userModel.getUsername());
+	// logLoginModel.setTime(sdf.format(new Date()));
+	// logLoginService.insertLogLogin(logLoginModel);
+	// modelAndView.addObject("user", userModel);
+	// request.getSession().setAttribute("user", userModel);
+	// }
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "用户不存在或密码错误");
+	// }
+	// return modelAndView;
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "验证码错误");
+	// return modelAndView;
+	// }
+	// } else {
+	// modelAndView.setViewName("/login.jsp");
+	// modelAndView.addObject("msg", "用户名或密码不能为空");
+	// }
+	// return modelAndView;
+	//
+	// }
+
+	// @RequestMapping("/register")
+	// public ModelAndView register(HttpServletRequest request,
+	// HttpServletResponse response) {
+	// ModelAndView modelAndView = new ModelAndView();
+	// UserModel userModel = new UserModel();
+	// if (request.getParameter("authCode") != null) {
+	// String strCode =(String) request.getSession().getAttribute("strCode");
+	// if (!(request.getParameter("authCode").trim().equals(strCode.trim()))) {
+	// modelAndView.setViewName("/register.jsp");
+	// modelAndView.addObject("msg", "验证码错误");
+	// return modelAndView;
+	// }
+	// }
+	// if (request.getParameter("username") != null) {
+	// userModel.setUsername(request.getParameter("username").trim());
+	// }
+	// if (request.getParameter("password") != null &&
+	// request.getParameter("repassword") != null) {
+	// if
+	// (!(request.getParameter("password").trim().equals(request.getParameter("repassword").trim())))
+	// {
+	// modelAndView.setViewName("/register.jsp");
+	// modelAndView.addObject("msg", "密码错误，请确保两次输入密码相同");
+	// return modelAndView;
+	// }
+	// userModel.setPassword(request.getParameter("password").trim());
+	// }
+	//
+	// if (request.getParameter("phonenum") != null) {
+	// userModel.setPhonenum(request.getParameter("phonenum"));
+	// }
+	// if (request.getParameter("email") != null) {
+	// userModel.setEmail(request.getParameter("email"));
+	// }
+	//
+	// userService.insertUser(userModel);
+	// return new ModelAndView("/success.jsp");
+	//
+	// }
+	
+	//ots cart
+	@RequestMapping("/insert")
+	public String insert(HttpServletRequest request ,HttpServletResponse response) throws IOException{
+		List<Map<String, Object>> list = new ArrayList<>();
+		Map<String, Object> map = new HashMap<>();
+		if (request.getParameter("menuid")!= null && request.getParameter("userid")!= null
+				&&request.getParameter("count")!=null) {
+			Integer userid = Integer.parseInt(request.getParameter("userid"));
+			Integer menuid = Integer.parseInt(request.getParameter("menuid"));
+			System.out.println("menuid"+request.getParameter("menuid"));
+			CartModel cartModel = new CartModel();
+			cartModel.setUserid(userid);
+			cartModel.setMerid(Integer.parseInt(request.getParameter("merid")));
+			cartModel.setMenuid(menuid);
+			cartModel.setGood(request.getParameter("good"));
+			cartModel.setPictureurl(request.getParameter("pictureurl"));
+			cartModel.setOriprice(new BigDecimal(request.getParameter("oriprice")));
+			cartModel.setCurprice(new BigDecimal(request.getParameter("curprice")));
+			cartModel.setCount(Integer.parseInt(request.getParameter("count")));
+			cartModel.setState("0");//查询购物车中是否存在相同menuid
+			int result = cartService.insert(cartModel);
+			System.out.println("result"+result);
+			if (result > 0) {
+				map.put("msg", "success");
+			}else {
+				map.put("msg", "insert error");
+			}
+		}else {
+			map.put("msg", "insert error");
+		}
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		PrintWriter out = response.getWriter();
+		System.out.println("json:"+json);
+		out.println(json);
+		out.flush();
+		out.close();
+		return null;
+	}
+	//ots cart
+	@RequestMapping("/setOrder")
+	public ModelAndView buy(HttpServletRequest request ,HttpServletResponse response) throws IOException{
+		ModelAndView modelAndView = new ModelAndView("/ots/setOrder.jsp");
+		System.out.println("setOrder");
+		System.out.println("menuid"+request.getParameter("menuid")+"_"+request.getParameter("userid")+"_"+
+				request.getParameter("count"));
+		if (request.getParameter("menuid")!= null && request.getParameter("userid")!= null
+				&&request.getParameter("count")!=null) {
+			Integer userid = Integer.parseInt(request.getParameter("userid"));
+			Integer menuid = Integer.parseInt(request.getParameter("menuid"));
+			System.out.println("menuid"+request.getParameter("menuid"));
+			CartModel cartModel = new CartModel();
+			cartModel.setUserid(userid);
+			cartModel.setMenuid(menuid);
+			cartModel.setMerid(Integer.parseInt(request.getParameter("merid")));
+			cartModel.setGood(request.getParameter("good"));
+			cartModel.setPictureurl(request.getParameter("pictureurl"));
+			cartModel.setOriprice(new BigDecimal(request.getParameter("oriprice")));
+			cartModel.setCurprice(new BigDecimal(request.getParameter("curprice")));
+			cartModel.setCount(Integer.parseInt(request.getParameter("count")));
+			cartModel.setState("0");
+			modelAndView.addObject("cartModel", cartModel);
+			System.out.println("cartModel"+cartModel.toString());
+			//根据userid 查询地址。
+			 AddressService  addressService =(AddressService) ApplicationContextFactory.getInstance()
+					.getBean("addressService");
+			 List<AddressModel> addresslist = addressService.listByUserid(cartModel.getUserid());
+			 System.out.println("addressListSize:"+addresslist.size());
+			 if (addresslist.size() > 0) {
+				 modelAndView.addObject("addresslist", addresslist);
+				 modelAndView.addObject("msg", "");
+			}else {
+				modelAndView.addObject("msg", "empty1");
+			}
+		}
+		return modelAndView;
+	}
+	
+	//ots 购物车到订单
+	@RequestMapping("/creatOrder")
+	public ModelAndView creatOrder(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView("/ots/setCartOrder.jsp");
+		if (request.getParameter("sel") != null && request.getParameter("sel") != "") {
+			String userid = request.getParameter("userid");
+			String sel = request.getParameter("sel");
+			System.out.println(sel);
+			String[] arrsel = sel.split(",");
+			System.out.println("length"+arrsel.length);
+			int i = 0;
+			List<CartModel> list = new ArrayList<>();
+			for(i= 0;i<arrsel.length ;i++){
+				System.out.println(arrsel[i]); //购物车id
+				list.add(cartService.findById(Integer.parseInt(arrsel[i])));
+			}
+			System.out.println("cartList:"+list.size());
+			modelAndView.addObject("sel", sel);
+			modelAndView.addObject("cartList", list);
+			modelAndView.addObject("msg2", "");
+		}else {
+			modelAndView.addObject("msg2", "empty2");
+		}
+		if (request.getParameter("userid") != null && request.getParameter("userid") != "") {
+			String userid = request.getParameter("userid");
+			AddressService  addressService =(AddressService) ApplicationContextFactory.getInstance()
+					.getBean("addressService");
+			List<AddressModel> addresslist = addressService.listByUserid(Integer.parseInt(userid));
+			System.out.println("addressListSize:"+addresslist.size());
+			if (addresslist.size() > 0) {
+			
+				modelAndView.addObject("addresslist", addresslist);
+				modelAndView.addObject("msg1", "");
+			}else {
+				modelAndView.addObject("msg1", "empty1");
+			}
+		}
+		return modelAndView;
+	}
+	//ots cart
+	@RequestMapping("/findByUserid")
+	public ModelAndView findByUserid(HttpServletRequest request ,HttpServletResponse response) throws IOException{
+		ModelAndView modelAndView = new ModelAndView("/ots/cartlist.jsp");
+		System.out.println("find");
+		if (request.getParameter("userid") != null&&request.getParameter("userid") != ""){
+			List<CartModel> cartList = cartService.findByUserid(Integer.parseInt(request.getParameter("userid")));
+			System.out.println(cartList.size());
+			if (cartList.size() > 0) {
+				modelAndView.addObject("cartList", cartList);
+			}else {
+				modelAndView.addObject("msg", "empty1");
+			}
+		}else {
+			modelAndView.addObject("msg", "error");
+		}
+		return modelAndView;
+	}
+	@RequestMapping("/cartShow")
+	public ModelAndView getOne(HttpServletRequest request,HttpServletResponse response){
+		ModelAndView modelAndView = new ModelAndView("/ots/cartlist.jsp");
+		Integer pageNo;
+		Integer userid = null;
+		if (request.getParameter("pageNo")==null) {
+			pageNo = 1;
+		}else{
+			pageNo = Integer.parseInt(request.getParameter("pageNo").trim());
+		}
+		if(request.getParameter("userid")!=null){
+			userid = Integer.parseInt(request.getParameter("userid"));
+		}
+		List<CartModel> list = cartService.findByPage(pageNo, 5,userid);
+		PageModel<CartModel> pageModel = new PageModel<CartModel>();
+		pageModel.setList(list);
+		pageModel.setPageNo(pageNo);
+		pageModel.setPageSize(5);
+		pageModel.setTotalCount(cartService.getTotal(userid).intValue());
+		modelAndView.addObject("pageModel",pageModel);		
+		return modelAndView;
+		
+	}
+	
+	//ots cart
+	@RequestMapping("/deleteById")
+	public String deleteById(HttpServletRequest request ,HttpServletResponse response) throws IOException{
+		String msg = "fail";
+		System.out.println(request.getParameter("id"));
+		List<Map<String, String>> list  = new ArrayList<>();
+		Map<String, String> map = new HashMap<>();
+		if (request.getParameter("id") != null&&request.getParameter("id") != ""){
+			int result = cartService.delete(Integer.parseInt(request.getParameter("id")));
+			if (result > 0) {
+				msg = "success";
+			}
+		}
+		map.put("msg", msg);
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		PrintWriter out = response.getWriter();
+		out.println(json);
+		out.flush();
+		out.close();
+		return null;
+	}
+
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e, HttpServletRequest request) {
+		e.printStackTrace();
+		request.setAttribute("exception", e);
+		return "/error.jsp";
+	}
+
+
+}

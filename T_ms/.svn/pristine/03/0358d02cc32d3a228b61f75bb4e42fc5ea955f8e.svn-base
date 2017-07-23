@@ -1,0 +1,115 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>商品展示</title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	function test(){
+		alert('1'+value);
+	}
+	function search(){
+		var searchName = $('#searchName').val();
+		var searchType = $('#searchType').val();
+		alert(searchName+" "+searchType);
+	}
+	</script>
+
+	<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	#med #foodShow{
+		width:250px;
+		height:250px;
+		float:left;
+		}
+	#med #shopShow{
+		width:300px;
+		height:300px;
+		float:left;
+		}
+	#med #search{
+		height:100px;
+	}
+	
+	</style>
+<body>
+<jsp:include  page="head.jsp"/>
+<div id="main">
+	<div id="left">
+		<jsp:include page="left.jsp"/>
+	</div>
+	<div id="med">
+	<!-- 主要部分 -->
+	<!-- 	<div id="search">
+				<form id = "listFrom" action="${pageContext.request.contextPath}/greens/listBySearchQT.do" method="post">
+					<input type="text" id="searchName" name="searchName" value="${searchName}">
+					<select id = "searchType" name ="searchType">
+					<c:choose>
+						<c:when test="${searchType == 'shop' }">
+							<option value="food">食物</option>
+							<option value="shop" selected = "true">店铺</option>
+						</c:when>
+						<c:when test="${searchType == 'food' }">
+							<option value="food" selected = "true">食物</option>
+							<option value="shop">店铺</option>
+						</c:when>
+						<c:otherwise>
+							<option value="food">食物</option>
+							<option value="shop">店铺</option>
+						</c:otherwise>
+					</c:choose>
+			
+					</select>
+					<input type="submit" value="搜索">
+				</form>
+			</div>
+ -->	
+		<c:choose>
+			<c:when test="${searchType == 'food'}">
+				<c:forEach items="${pageModel.getList()}" var="greensModel">
+	<!-- 			  <p><img alt="食物图片" src="${pageContext.request.contextPath}/upload/${greensModel.pictureurl}" height="200" width="200"></p>${greensModel.pictureurl}
+		          <p><a href = "${pageContext.request.contextPath}/greens/findOne.do?menuid=${greensModel.menuid }">菜名：${greensModel.grename}</a></p>
+		    	<tr><td><img alt="食物图片" src="${pageContext.request.contextPath}/upload/${greensModel.pictureurl}" height="200" width="200"></td></tr>
+	 -->	    	 <div id="foodShow">
+	 					<a href="${pageContext.request.contextPath}/greens/findOne.do?menuid=${greensModel.menuid }" title="菜品名称">
+					       <img src="${pageContext.request.contextPath}/upload/${greensModel.pictureurl}" height="200" width="200"">
+					       <figcaption>
+					       <span >${greensModel.grename}</span></br>
+					       <span >原价：<i>￥</i><s>${greensModel.curprice}</s></span>
+					       <span >现价：<i>￥</i>${greensModel.curprice}</span>
+					       </figcaption>
+					 	</a>
+					 </div>
+							    	
+		    	</c:forEach>
+			</c:when>
+			<c:otherwise>
+			<c:forEach items="${pageModel.getList()}" var="shopModel">
+		          <div id="shopShow">
+	 					<a href="#" title="店铺名称">
+					       <img src="${pageContext.request.contextPath}/upload/${shopModel.pictureurl}" height="220" width="220"">
+					       <figcaption>
+					       <span >店名：${shopModel.shopname}</span></br>
+					       <span >地址：${shopModel.address}</span></br>
+					       <span >联系电话：${shopModel.phonenum}</span></br>
+					        <span >商家描述：${shopModel.descri}</span>
+					       </figcaption>
+					 	</a>
+					 </div>
+		    	</c:forEach>
+			</c:otherwise>
+		</c:choose>
+	<!-- 添加分页 -->
+	<!-- 添加分页结束 -->
+	<!-- 主要部分结束 -->
+	</div>
+	<div id="right">
+		<jsp:include page="right.jsp"/>
+	</div>
+</div>
+<jsp:include  page="bottom.jsp"/> 
+</body>
+</html>

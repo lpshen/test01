@@ -1,0 +1,75 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	function test(){
+		alert('1'+value);
+	}
+	function search(){
+		var searchName = $('#searchName').val();
+		var searchType = $('#searchType').val();
+		alert(searchName+" "+searchType);
+	}
+	
+	</script>
+	<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+		#orderTable{
+			border:1px solid green;
+		}
+		.blueStyle{
+			color:blue;
+			bgcolor:blue;
+		}
+	
+	</style>
+<body>
+<jsp:include  page="head.jsp"/> 
+<div id="main">
+	<div id="left">
+		<jsp:include page="left.jsp"/>
+	</div>
+	<div id="med">
+	<!-- 主要部分 -->
+		<c:choose>
+			<c:when test="${msg == 'empty1' }">
+				<p>暂时没有订单</p>
+			</c:when>
+			<c:when test="${msg == 'success' }">
+					<c:forEach items="${userOrders }" var="userOrder">
+					<!-- 根据订单的编号查询订单的详细信息 -->
+				<table id="orderTable" border="0" cellspacing="1" cellpadding="1">
+					<tr bgcolor="#00b9f9">
+					<td colspan="5"><a href="#">编号：${userOrder.ordernum}</a></tr>
+					<tr><td colspan= "2">收件人：${userOrder.name}</td><td>总价：${userOrder.totalprice}</td><td>支付状态：${userOrder.paystate}</td><td>处理状态：${userOrder.mastate}</td>
+					<tr><td colspan="4">地址：${userOrder.address}</td><td><c:if test="${userOrder.paystate =='未支付' }"> 操作：<button >删除 </button></c:if></td></tr>
+				</table>
+				<br>
+					</c:forEach>
+			</c:when>
+			<c:otherwise>
+				<p>error</p>
+			</c:otherwise>
+		</c:choose>
+
+	<p>${searchType}
+		<a href="">第一页</a>
+		<a href="">上一页</a>
+		<a href="">下一页</a>
+		<a href="">末页</a>
+	</p>
+	<!-- 主要部分结束 -->
+	</div>
+	<div id="right">
+		<jsp:include page="right.jsp"/>
+	</div>
+</div>
+<jsp:include  page="bottom.jsp"/> 
+</body>
+</html>

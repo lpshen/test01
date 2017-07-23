@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.RechargeRecordMapper">
+	<insert id="insert" parameterType = "com.bms.model.RechargeRecordModel">
+	insert into recharge_record (id,userid,money,time,operationid) values(#{id},#{userId},#{money},#{time},#{operationid});
+	</insert>
+
+    	<!-- 传入多个参数 -->
+  	<select id="listByPage" resultType="com.bms.model.RechargeRecordModel" parameterType="java.util.Map">
+  		select * from recharge_record where userid= #{userid} limit #{pageNo} , #{pageSize}
+  	</select>
+  	<select id="getTotal" resultType="java.lang.Long" parameterType="java.util.Map"> 
+  		select count(*) from recharge_record where userid = #{userid}
+  	</select>	   
+  	
+<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.RechargeListModel" parameterType="java.util.Map">
+  		select r.id,r.userid,u.username,u.phonenum,r.money,r.time,r.operationid,u.state from recharge_record r inner join user u on u.id = r.userid where 1 = 1
+  		<if test="username != null">
+  		 and u.username = '${username}'
+  		</if>
+  		<if test="time != null">
+  		 and r.time like '%${time}%'
+  		</if>
+  		<if test="operationid != null">
+  		 and r.operationid like '%${operationid}%'
+  		</if>
+  		</select>
+  		
+
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

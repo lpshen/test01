@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.UserOrderMapper">
+
+
+  	<select id="listByUserid" resultType="com.bms.model.UserOrder" parameterType="java.util.Map">
+     SELECT o.orderid, o.ordernum ,o.totalprice ,a.address address
+	,a.`name` name,a.phonenum phonenum,o.paystate,
+	o.mastate  FROM orders  o INNER JOIN address a ON a.id = o.addresssid AND o.userid = #{userid}
+  	</select>
+  	  	<select id="findByOrdernum" resultType="com.bms.model.UserOrder" parameterType="java.util.Map">
+     SELECT o.orderid o.ordernum ,o.totalprice ,a.address address
+	,a.`name` name,a.phonenum phonenum,o.paystate,
+	o.mastate  FROM orders  o INNER JOIN address a ON a.id = o.addresssid AND o.ordernum = #{ordernum}
+  	</select>
+  
+    
+</mapper>
+

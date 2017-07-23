@@ -1,0 +1,198 @@
+package com.bms.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bms.common.ApplicationContextFactory;
+import com.bms.model.AccountModel;
+import com.bms.model.PageModel;
+import com.bms.model.PayListModel;
+import com.bms.model.PayRecordModel;
+import com.bms.model.RechargeListModel;
+import com.bms.model.RechargeRecordModel;
+import com.bms.model.UserModel;
+import com.bms.service.PayRecordService;
+import com.bms.service.RechargeRecordService;
+import com.bms.service.UserService;
+
+import net.sf.json.JSONArray;
+
+@Controller
+@RequestMapping("/recharge")
+public class RechargeController {
+	private RechargeRecordService rechargeRecordService = (RechargeRecordService) ApplicationContextFactory.getInstance().getBean("rechargeRecordService");
+	private PayRecordService payRecordService =(PayRecordService)ApplicationContextFactory.getInstance().getBean("payRecordService");
+	private UserService userService = (UserService) ApplicationContextFactory.getInstance().getBean("userService");
+	@RequestMapping("/add")
+	public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView();
+		
+		return modelAndView;
+
+	}
+
+
+	@RequestMapping("/delete")
+	public ModelAndView delete(@ModelAttribute("accountModel") AccountModel accountModel, HttpServletRequest request,
+			HttpServletResponse response) {
+
+	
+		return new ModelAndView("/success.jsp");
+
+	}
+//前台充值记录
+	@RequestMapping("/listByPageCZ")
+	public ModelAndView listByPage(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView();
+		Integer page;
+		if (request.getParameter("pageNo") == null) {
+			page = 1;
+		} else {
+			page = Integer.parseInt(request.getParameter("pageNo"));
+		}
+		String msg ="";
+		if (request.getParameter("userid") != null&&!"".equals(request.getParameter("userid"))) {
+			Integer userid = Integer.parseInt(request.getParameter("userid"));
+			List<RechargeRecordModel> list = rechargeRecordService.listByPage(page, 4,userid);
+			PageModel<RechargeRecordModel> pageModel = new PageModel<>();
+			pageModel.setList(list);
+			pageModel.setPageNo(page);
+			pageModel.setPageSize(4);
+			pageModel.setTotalCount(rechargeRecordService.getTotal(userid).intValue());
+			modelAndView.addObject("pageModel", pageModel);
+		}else {
+			msg = "nodate";
+		}
+		modelAndView.addObject("msg", msg);
+		modelAndView.setViewName("/ots/user_rechargelist.jsp");
+		return modelAndView;
+	}
+	//前台支付记录
+	@RequestMapping("/listByPageZF")
+	public ModelAndView listByPage1(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView();
+		Integer page;
+		if (request.getParameter("pageNo") == null) {
+			page = 1;
+		} else {
+			page = Integer.parseInt(request.getParameter("pageNo"));
+		}
+		String msg = "";
+		if (request.getParameter("userid") != null&&!"".equals(request.getParameter("userid"))) {
+			Integer userid = Integer.parseInt(request.getParameter("userid"));
+			List<PayRecordModel> list = payRecordService.listByPage(page, 4,userid);
+			PageModel<PayRecordModel> pageModel = new PageModel<>();
+			pageModel.setList(list);
+			pageModel.setPageNo(page);
+			pageModel.setPageSize(4);
+			pageModel.setTotalCount(payRecordService.getTotal(userid).intValue());
+			modelAndView.addObject("pageModel", pageModel);
+		}else {
+			msg = "nodate";
+		}
+		modelAndView.addObject("msg", msg);
+		modelAndView.setViewName("/ots/user_paylist.jsp");
+		return modelAndView;
+	}
+	//easyui 页面 充值记录
+	@RequestMapping("/list")
+	public String findAll(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Integer operationid = null;//操作管理员id
+		String userName = null;//用户名称
+		String time = null;//操作时间
+		Integer userid = null;
+		if (request.getParameter("date") != null && !("".equals(request.getParameter("date")))) {
+			time = request.getParameter("date");
+			System.out.println("time" + time);
+		}
+		if (request.getParameter("userName") != null && !("".equals(request.getParameter("userName")))) {
+			userName = new String(request.getParameter("userName").getBytes("ISO8859-1"), "utf-8");
+			System.out.println("userName" + userName);
+		}
+		if (request.getParameter("operationid")!= null&&!("".equals(request.getParameter("operationid")))) {
+			operationid =Integer.parseInt(request.getParameter("operationid"));
+		}
+
+		List<RechargeListModel> list = rechargeRecordService.listBySearch(userName , operationid, time);
+		String json = JSONArray.fromObject(list).toString();
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+
+	}
+	//easyui 页面 消费记录
+		@RequestMapping("/list_pay")
+		public String listPay(HttpServletRequest request, HttpServletResponse response) throws Exception {
+			String userName = null;//用户名称
+			String time = null;//消费时间
+			String ordernum = null;//订单编号
+			if (request.getParameter("date") != null && !("".equals(request.getParameter("date")))) {
+				time = request.getParameter("date");
+			}
+			if (request.getParameter("userName") != null && !("".equals(request.getParameter("userName")))) {
+				userName = new String(request.getParameter("userName").getBytes("ISO8859-1"), "utf-8");
+				System.out.println("userName" + userName);
+			}
+			if (request.getParameter("ordernum")!= null&&!("".equals(request.getParameter("ordernum")))) {
+				ordernum =request.getParameter("ordernum");
+			}
+			List<PayListModel> list = payRecordService.list(time,userName ,ordernum);
+			String json = JSONArray.fromObject(list).toString();
+			response.setCharacterEncoding("utf-8");
+			PrintWriter out = response.getWriter();
+			out.print(json);
+			out.flush();
+			out.close();
+			return null;
+
+		}
+	@RequestMapping("/saveRechargeRecord")	
+	public ModelAndView saveRechargeRecord(HttpServletRequest request ,HttpServletResponse response) throws IOException {
+		System.out.println("userid"+request.getParameter("userId")+"money"+request.getParameter("money"));
+		if (request.getParameter("userId")!= null&& request.getParameter("money")!=null) {
+			Integer userId = Integer.parseInt(request.getParameter("userId"));
+			BigDecimal money = new BigDecimal(request.getParameter("money"));
+			System.out.println("bigdecimal_money:"+money);
+			RechargeRecordModel rechargeRecordModel = new RechargeRecordModel();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			rechargeRecordModel.setMoney(money);
+			rechargeRecordModel.setOperationid(userId);
+			rechargeRecordModel.setTime(sdf.format(new Date()));
+			rechargeRecordModel.setUserId(userId);
+			UserModel userModel = new UserModel();
+			userModel.setId(userId);
+			userModel.setMoney(money);
+			if (userService.recharge(userModel) > 0) {
+			int result = rechargeRecordService.insert(rechargeRecordModel);
+			if (result > 0) {
+				System.out.println("微信充值记录保存成功");
+				response.sendRedirect("../user/findByUserid.do?userid="+userId);
+			}
+			}
+		}
+		return null;
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e, HttpServletRequest request) {
+		e.printStackTrace();
+		request.setAttribute("exception", e);
+		return "/error.jsp";
+	}
+}

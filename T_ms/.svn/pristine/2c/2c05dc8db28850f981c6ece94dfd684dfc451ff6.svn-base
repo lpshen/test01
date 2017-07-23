@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.CartMapper">
+
+	<insert id="insert" parameterType="com.bms.model.CartModel">
+	insert into
+	cart(id,menuid,merid,userid,good,pictureurl,oriprice,count,curprice,state)values(#{id},#{menuid},#{merid},#{userid},#{good},#{pictureurl},#{oriprice},#{count},#{curprice},#{state})
+    </insert>
+    
+    <delete id="delete" parameterType="com.bms.model.CartModel">
+     delete from cart  where id = #{id}
+  	</delete>
+  	<select id="findByUserid" parameterType="com.bms.model.CartModel" resultType="com.bms.model.CartModel">
+  		select * from cart where userid =#{userid} 
+  	 </select>
+  	  <select id="findById" parameterType="com.bms.model.CartModel" resultType="com.bms.model.CartModel">
+  		select * from cart where id =#{id} 
+  	  </select>
+  	  <update id="updateById" parameterType="java.util.Map">
+  	  update cart set count = #{count} where id = #{id}
+  	  </update>
+  	  <select id="findByMenuid" parameterType="java.util.Map" resultType="com.bms.model.CartModel">
+  	  select * from cart where menuid = #{menuid}
+  	  </select>
+  	
+    
+</mapper>
+

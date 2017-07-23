@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.OrderDetailsMapper">
+	<select id="listBySearch"  resultType="com.bms.model.OrderDetails" parameterType="java.util.Map">
+		SELECT temp.ordernum ordernum ,gr.grename grename,gr.oriprice oriprice,gr.type,
+		om.count count,temp.time time,temp.totalprice totalprice,temp.`name` name,
+		temp.address address,temp.phonenum phonenum
+		FROM ordermenu as om
+		INNER JOIN greens AS gr ON om.menuid = gr.menuid
+		INNER JOIN 
+		(SELECT o.ordernum ,o.userid,o.totalprice,o.paystate,o.time,o.mastate,ad.address,ad.`name`,ad.phonenum,ad.postcode 
+			FROM orders AS o INNER JOIN address AS ad ON ad.id = o.addresssid) AS temp 
+		ON temp.ordernum = om.ordernum 
+		 <if test="ordernum != null">
+  		 AND temp.ordernum = '${ordernum}'
+  		</if>
+	</select>
+
+  	
+    
+</mapper>
+

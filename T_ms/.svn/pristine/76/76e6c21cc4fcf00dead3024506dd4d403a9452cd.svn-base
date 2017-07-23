@@ -1,0 +1,685 @@
+package com.bms.controller;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.bms.common.ApplicationContextFactory;
+import com.bms.model.AccountModel;
+import com.bms.model.MessageModel;
+import com.bms.model.PageModel;
+import com.bms.model.ShopModel;
+import com.bms.service.AccountDao;
+import com.bms.service.MessageService;
+import com.bms.service.ShopService;
+
+import net.sf.json.JSONArray;
+
+@Controller
+@RequestMapping("/shop")
+public class ShopController {
+	private ShopService shopService = (ShopService) ApplicationContextFactory.getInstance().getBean("shopService");
+	private MessageService messageService = (MessageService) ApplicationContextFactory.getInstance().getBean("messageService");
+
+//	@RequestMapping("/login")
+//	public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+//		ModelAndView modelAndView = new ModelAndView();
+//		LogLoginService logLoginService = (LogLoginService) ApplicationContextFactory.getInstance().getBean("logLoginService");
+//		String username = null;
+//		String password = null;
+//		String strCode = null;// session中保存的验证码
+//		if (request.getParameter("username").trim() != null && request.getParameter("password").trim() != null
+//				&& request.getParameter("authCode") != null) {
+//			strCode = (String) request.getSession().getAttribute("strCode");
+//			if (request.getParameter("authCode").trim().equals(strCode.trim())) {
+//				username = request.getParameter("username").trim();
+//				password = request.getParameter("password").trim();
+//				List<UserModel> list = null;
+//				list = userService.findByUser(username, password);
+//
+//				if (list.size() != 0) {
+//					UserModel userModel = list.get(0);
+//					if (userModel.getUsername() != null) {//登录成功
+//						modelAndView.setViewName("/index.jsp");
+//						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+//						LogLoginModel logLoginModel = new LogLoginModel();
+//						logLoginModel.setRole("YH");
+//						logLoginModel.setUserid(userModel.getId());
+//						logLoginModel.setUsername(userModel.getUsername());
+//						logLoginModel.setTime(sdf.format(new Date()));
+//						logLoginService.insertLogLogin(logLoginModel);
+//						modelAndView.addObject("user", userModel);
+//						request.getSession().setAttribute("user", userModel);
+//					}
+//				} else {
+//					modelAndView.setViewName("/login.jsp");
+//					modelAndView.addObject("msg", "用户不存在或密码错误");
+//				}
+//				return modelAndView;
+//			} else {
+//				modelAndView.setViewName("/login.jsp");
+//				modelAndView.addObject("msg", "验证码错误");
+//				return modelAndView;
+//			}
+//		} else {
+//			modelAndView.setViewName("/login.jsp");
+//			modelAndView.addObject("msg", "用户名或密码不能为空");
+//		}
+//		return modelAndView;
+//
+//	}
+//
+//	@RequestMapping("/register")
+//	public ModelAndView register(HttpServletRequest request, HttpServletResponse response) {
+//		ModelAndView modelAndView = new ModelAndView();
+//		UserModel userModel = new UserModel();
+//		if (request.getParameter("authCode") != null) {
+//			String strCode =(String) request.getSession().getAttribute("strCode");
+//			if (!(request.getParameter("authCode").trim().equals(strCode.trim()))) {
+//				modelAndView.setViewName("/register.jsp");
+//				modelAndView.addObject("msg", "验证码错误");
+//				return modelAndView;
+//			}
+//		}
+//		if (request.getParameter("username") != null) {
+//			userModel.setUsername(request.getParameter("username").trim());
+//		}
+//		if (request.getParameter("password") != null && request.getParameter("repassword") != null) {
+//			if (!(request.getParameter("password").trim().equals(request.getParameter("repassword").trim()))) {
+//				modelAndView.setViewName("/register.jsp");
+//				modelAndView.addObject("msg", "密码错误，请确保两次输入密码相同");
+//				return modelAndView;
+//			}
+//			userModel.setPassword(request.getParameter("password").trim());
+//		}
+//		
+//		if (request.getParameter("phonenum") != null) {
+//			userModel.setPhonenum(request.getParameter("phonenum"));
+//		}
+//		if (request.getParameter("email") != null) {
+//			userModel.setEmail(request.getParameter("email"));	
+//		}
+//	
+//		userService.insertUser(userModel);
+//		return new ModelAndView("/success.jsp");
+//
+//	}
+//
+//	@RequestMapping("/deleteSubmit")
+//	public ModelAndView delete(@ModelAttribute("accountModel") AccountModel accountModel, HttpServletRequest request,
+//			HttpServletResponse response) {
+//
+//		AccountDao dao = (AccountDao) ApplicationContextFactory.getInstance().getBean("accountDao");
+//		accountModel.setUsername("admin");
+//		dao.deleteUser(accountModel);
+//		return new ModelAndView("/success.jsp");
+//
+//	}
+//easyui 页面 店铺管理
+	@RequestMapping("/list")
+	public String findAll(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Integer userid = null;//商家id
+		String shopName = null;//店铺名称
+		String time = null;//添加时间
+	//	String type = null;
+		// request.setCharacterEncoding("utf-8");
+		if (request.getParameter("date") != null && !("".equals(request.getParameter("date")))) {
+//			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+//			SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+//			Date date = sdf.parse(request.getParameter("date"));
+//			time = sdf2.format(date);
+//			System.out.println("time" + time);
+			time = request.getParameter("date");
+		}
+		if (request.getParameter("shopName") != null && !("".equals(request.getParameter("shopName")))) {
+			shopName = new String(request.getParameter("shopName").getBytes("ISO8859-1"), "utf-8");
+			System.out.println("shopName" + shopName);
+		}
+//		if (request.getParameter("type") != null && !("".equals(request.getParameter("type")))) {
+//			type = new String(request.getParameter("type").getBytes("ISO8859-1"), "utf-8");
+//			System.out.println("type" + type);
+//		}
+		if (request.getParameter("userid")!= null&&!("".equals(request.getParameter("userid")))) {
+			userid = Integer.parseInt(request.getParameter("userid"));
+		}
+
+		List<ShopModel> list = shopService.listBySearch (shopName, time, userid);
+		String json = JSONArray.fromObject(list).toString();
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		System.out.println("json:" + json);
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+
+	}
+	
+	//easyui 菜单启用与停用	
+		@RequestMapping("/editState")
+		public String editState(HttpServletRequest request, HttpServletResponse response) throws IOException {
+			System.out.println("state:"+request.getParameter("state"));
+			System.out.println("id:"+request.getParameter("id"));
+			Integer id = null;
+			int result = 0;	
+			if (request.getParameter("state")!=null&&request.getParameter("id")!=null) {
+				ShopModel shopModel = new ShopModel();
+				id = Integer.parseInt(request.getParameter("id"));
+				if ("已启用".equals(request.getParameter("state").trim())) {
+					shopModel.setId(id);
+					shopModel.setState("未启用");
+				}else if ("未启用".equals(request.getParameter("state").trim())) {
+					shopModel.setId(id);
+					shopModel.setState("已启用");
+				}
+				result = shopService.editState(shopModel);
+			}
+			response.setCharacterEncoding("utf-8");
+			PrintWriter out = response.getWriter();
+			Map<String, String> map = new HashMap<>();
+			List<Map<String, String>> list = new ArrayList<>();
+			if (result > 0) {
+				map.put("msg", "成功");
+			}else{
+				map.put("msg", "失败");
+			}
+			list.add(map);
+			String json = JSONArray.fromObject(list).toString();
+			out.print(json);
+			out.flush();
+			out.close();
+			return null;
+		}
+	//easyui 页面 单条多条删除	
+		@RequestMapping("/delete")
+		public String delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		 Integer length = null;
+		 int result = 0;
+		 if (request.getParameter("selectedIDsLength")!= null) {
+			 ShopModel shopModel = new ShopModel();
+			length = Integer.parseInt(request.getParameter("selectedIDsLength"));
+			System.out.println("length:"+length);
+			for(int i= 0 ;i < length;i++){
+				System.out.println(request.getParameter("selectedIDs["+i+"]"));
+				System.out.println(Integer.parseInt(request.getParameter("selectedIDs["+i+"]")));
+			 shopModel.setId(Integer.parseInt(request.getParameter("selectedIDs["+i+"]")));
+			 result = shopService.deleteById(shopModel);
+			
+			}
+		}
+		 response.setCharacterEncoding("utf-8");
+		 PrintWriter out = response.getWriter();
+		 Map<String, String> map = new HashMap<>();
+		 List<Map<String, String>> list = new ArrayList<>();
+		 if (result > 0) {
+			map.put("msg", "成功");
+		}else{
+			map.put("msg", "失败");
+		}
+		 list.add(map);
+		 String json = JSONArray.fromObject(list).toString();
+		 out.print(json);
+		 out.flush();
+		 out.close();
+		 System.out.println("result:"+result);
+			return null;
+		}
+
+	@RequestMapping("/updateSubmit")
+	public ModelAndView updatesb(HttpServletRequest request, HttpServletResponse response) {
+		AccountModel accountModel = new AccountModel();
+		if (request.getParameter("username") != null && request.getParameter("password") != null
+				&& request.getParameter("accountId") != null) {
+			accountModel.setUsername(request.getParameter("username").trim());
+			accountModel.setPassword(request.getParameter("password").trim());
+			accountModel.setAccountId(request.getParameter("accountId"));
+			System.out.println(request.getParameter("username").trim() + "=" + request.getParameter("password").trim());
+		} else {
+			return new ModelAndView("/error.jsp");
+		}
+
+		AccountDao dao = (AccountDao) ApplicationContextFactory.getInstance().getBean("accountDao");
+		dao.update(accountModel);
+		return new ModelAndView("/success.jsp");
+
+	}
+	
+	@RequestMapping("/update")
+	public String update(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ShopModel shopModel = new ShopModel();
+		if (request.getParameter("id") != null) {
+			shopModel.setId(Integer.parseInt(request.getParameter("id")));
+		}
+		if (request.getParameter("shopName") != null) {
+			shopModel.setShopname(request.getParameter("shopName"));
+		}
+		if (request.getParameter("address") != null) {
+			shopModel.setAddress(request.getParameter("address"));
+		}
+		if (request.getParameter("phonenum")!= null) {
+			shopModel.setPhonenum(request.getParameter("phonenum"));
+		}
+		if (request.getParameter("pictureUrl")!= null) {
+			shopModel.setPictureurl(request.getParameter("pictureUrl"));
+		}
+		int result = 0;
+		System.out.println("shopModel:"+shopModel.toString());
+		result  = shopService.updateShop(shopModel);
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		if (result > 0) {
+			map.put("msg", "成功");
+		}else{
+			map.put("msg", "失败");
+		}
+		list.add(map);
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		String json = JSONArray.fromObject(list).toString();
+		System.out.println("json:"+json);
+		out.print(json);
+		out.flush();
+		out.close();
+		return null;
+		
+
+	}
+	
+	@RequestMapping("/logout")
+	public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
+		request.getSession().invalidate();
+		return new ModelAndView("/login.jsp");
+	}
+
+//	@RequestMapping("/update")
+//	public ModelAndView re(HttpServletRequest request, HttpServletResponse response) {
+//		return new ModelAndView("/update.jsp");
+//	}
+	@RequestMapping("/backstage")
+	public ModelAndView backIndex(HttpServletRequest request, HttpServletResponse response) {
+		return new ModelAndView("/bsm/login.jsp");
+	}
+
+	@RequestMapping("/listByPage")
+	public ModelAndView listByPage(HttpServletRequest request, HttpServletResponse response) {
+		Integer page;
+		if (request.getParameter("pageNo") == null) {
+			page = 1;
+		} else {
+			page = Integer.parseInt(request.getParameter("pageNo"));
+		}
+		AccountDao dao = (AccountDao) ApplicationContextFactory.getInstance().getBean("accountDao");
+		AccountModel accountModel = new AccountModel();
+		accountModel.setUsername("admin");
+		List<AccountModel> list = dao.listByPage(page, 2, accountModel.getUsername());
+		PageModel<AccountModel> pageModel = new PageModel<>();
+		pageModel.setList(list);
+		pageModel.setPageNo(page);
+		pageModel.setPageSize(2);
+		pageModel.setTotalCount(dao.getTotal().intValue());
+		System.out.println(dao.getTotal().intValue());
+
+		return new ModelAndView("/List.jsp", "pageModel", pageModel);
+	}
+/*
+ * 后台对用户表分页查询前端实现分页
+ */
+	@RequestMapping("/listBySearch")
+	public ModelAndView listBySearch(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView modelAndView = new ModelAndView("/bsm/Brand_Manage.jsp");
+		
+		String shopname = null;
+		String addtime = null;
+		Integer userid = null;
+
+		if (request.getParameter("shopname") != null) {
+			shopname = request.getParameter("shopname");
+		}
+		if (request.getParameter("addtime") != null) {
+			addtime = request.getParameter("addtime");
+			System.out.println(request.getParameter("addtime"));
+//			adminidstr = request.getParameter("adminid").trim();
+//			if (!adminidstr.equals("")) {
+//				adminid = Integer.parseInt(adminidstr); 
+//			}
+		}
+		
+		System.out.println("shopname: #"+shopname+"#  time: #"+addtime);
+		List<ShopModel> list = shopService.listBySearch(shopname, addtime,userid);	
+		modelAndView.addObject("list", list);
+		modelAndView.addObject("shopname", shopname);
+		modelAndView.addObject("addtime", addtime);
+		System.out.println("店铺表查询长度："+list.size());
+		if (list.size() > 0) {	
+		System.out.println("describe: " + list.get(0).getDescri());
+		System.out.println(list.get(0).getShopname());
+		}
+		return modelAndView;
+	}
+	//后台 店铺编辑
+	@RequestMapping("/shopUpdate")
+	public String shopUpdate(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+		ShopModel shopModel = new ShopModel();
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		System.out.println("##"+request.getParameter("update_shopName"));
+		System.out.println("##"+request.getParameter("update_id"));
+		// 文件上传
+		//File uploadPath = new File("F://images//upload");
+		String savePath = request.getServletContext().getRealPath("/upload");
+		File uploadPath = new File(savePath);
+
+		if (!uploadPath.exists()) { // 如果上传文件的目录不存在，则创建之
+			uploadPath.mkdir();
+		}
+		System.out.println(uploadPath.getPath() + "" + uploadPath.getAbsolutePath());
+
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		String foodName = "";
+		String fileName = "";
+		int result = 0;
+
+		if (isMultipart) {
+
+			FileItemFactory factory = new DiskFileItemFactory();
+			ServletFileUpload upload = new ServletFileUpload(factory);
+
+			List<FileItem> items;
+			items = upload.parseRequest(request);
+			Iterator<FileItem> iterator = items.iterator();
+			while (iterator.hasNext()) {
+				FileItem item = (FileItem) iterator.next();
+				if (item.isFormField()) {
+					System.out.println("item.getFieldName()" + item.getFieldName());
+					if ("update_id".equals(item.getFieldName())) {
+						System.out.println("update_id:"+item.getString());
+						shopModel.setId(Integer.parseInt(item.getString()));
+					}
+					if ("update_shopName".equals(item.getFieldName())) {
+						System.out.println("update_shopName:"+new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						shopModel.setShopname(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("update_state".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						shopModel.setState(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("update_address".equals(item.getFieldName())) {
+						System.out.println("address:"+new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						shopModel.setAddress(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+					if ("update_phonenum".equals(item.getFieldName())) {
+						System.out.println("phonenum:"+item.getString());
+						shopModel.setPhonenum(item.getString());
+					}
+					if ("update_describe".equals(item.getFieldName())) {
+						System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						shopModel.setDescri(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+					}
+
+				}
+
+				fileName = item.getName();
+				if (fileName != null) {
+					File file = new File(fileName);
+					File saveFile = new File(uploadPath, file.getName());
+					System.out.println("saveFile:"+saveFile.getPath());
+					String pictureUrl = saveFile.getPath().substring(saveFile.getPath().indexOf("upload")+7, saveFile.getPath().length());
+					shopModel.setPictureurl(pictureUrl);
+					System.out.println(fileName);
+					item.write(saveFile);
+
+				}
+				System.out.println("帐号：" + foodName + "，头像路径：" + fileName);
+			}
+			//shopModel.setAdminid(11); //商户id
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			shopModel.setTime(sdf.format(new Date()));
+			//greensModel.setState("已启用");
+			System.out.println(shopModel.toString());
+			result = shopService.update(shopModel);
+			System.out.println("result"+result);
+		}
+		response.setCharacterEncoding("utf-8");
+		PrintWriter out = response.getWriter();
+		Map<String, String> map = new HashMap<>();
+		List<Map<String, String>> list = new ArrayList<>();
+		if (result > 0) {
+			map.put("msg", "success");
+			System.out.println("添加成功");
+		}else {
+			map.put("msg", "fail");
+		}
+		
+		list.add(map);
+		String json = JSONArray.fromObject(list).toString();
+		out.print(json);
+		out.flush();
+		out.close();
+
+		return null;
+	}
+	@RequestMapping("/shopShow")
+	public ModelAndView getOne(HttpServletRequest request,HttpServletResponse response) {
+		ModelAndView  modelAndView = new ModelAndView("/ots/shopShow.jsp");
+		
+		//留言分页内容
+		Integer page;
+		Integer userid = null;
+		if (request.getParameter("pageNo") == null) {
+			page = 1;
+		} else {
+			page = Integer.parseInt(request.getParameter("pageNo"));
+		}
+		if (request.getParameter("userid")!= null) {
+			userid = Integer.parseInt(request.getParameter("userid"));
+		}
+		
+		System.out.println("userid:"+userid+"page:"+page);
+		List<MessageModel> list = messageService.listByPage(page, 2, userid);
+		System.out.println("listsize："+list.size());
+		PageModel<MessageModel> pageModel = new PageModel<>();
+		pageModel.setList(list);
+		pageModel.setPageNo(page);
+		pageModel.setPageSize(2);
+		pageModel.setTotalCount(messageService.getTotal(userid).intValue());
+		System.out.println(messageService.getTotal(userid).intValue());
+		modelAndView.addObject("pageModel", pageModel);
+		//留言分页结束
+		System.out.println("pageModel.list:"+pageModel.getList());
+		ShopModel shopModel = shopService.getOne();
+		modelAndView.addObject("shop", shopModel);
+		return modelAndView;
+	}
+
+	// easyui 页面 添店铺
+		@RequestMapping("/insert")
+		public String addShop(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+			ShopModel shopModel = new ShopModel();
+			request.setCharacterEncoding("utf-8");
+			response.setContentType("text/html;charset=utf-8");
+			System.out.println("##"+request.getParameter("foodName"));
+			System.out.println("##"+request.getParameter("userid"));
+			// 文件上传
+			//File uploadPath = new File("F://images//upload");
+			String savePath = request.getServletContext().getRealPath("/upload");
+			File uploadPath = new File(savePath);
+
+			if (!uploadPath.exists()) { // 如果上传文件的目录不存在，则创建之
+				uploadPath.mkdir();
+			}
+			System.out.println(uploadPath.getPath() + "" + uploadPath.getAbsolutePath());
+
+			boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+			String foodName = "";
+			String fileName = "";
+			int result = 0;
+
+			if (isMultipart) {
+
+				FileItemFactory factory = new DiskFileItemFactory();
+				ServletFileUpload upload = new ServletFileUpload(factory);
+
+				List<FileItem> items;
+				items = upload.parseRequest(request);
+				Iterator<FileItem> iterator = items.iterator();
+				while (iterator.hasNext()) {
+					FileItem item = (FileItem) iterator.next();
+					if (item.isFormField()) {
+						System.out.println("item.getFieldName()" + item.getFieldName());
+						if ("shopName".equals(item.getFieldName())) {
+							System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+							shopModel.setShopname(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						}
+						if ("state".equals(item.getFieldName())) {
+							System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+							shopModel.setState(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						}
+						if ("address".equals(item.getFieldName())) {
+							System.out.println("address:"+item.getString());
+							shopModel.setAddress(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						}
+						if ("phonenum".equals(item.getFieldName())) {
+							System.out.println("phonenum:"+item.getString());
+							shopModel.setPhonenum(item.getString());
+						}
+						if ("describe".equals(item.getFieldName())) {
+							System.out.println(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+							shopModel.setDescri(new String(item.getString().getBytes("ISO8859-1"), "utf-8"));
+						}
+
+					}
+
+					fileName = item.getName();
+					if (fileName != null) {
+						File file = new File(fileName);
+						File saveFile = new File(uploadPath, file.getName());
+						String pictureUrl = saveFile.getPath().substring(saveFile.getPath().indexOf("upload")+7, saveFile.getPath().length());
+						shopModel.setPictureurl(pictureUrl);
+						System.out.println(fileName);
+						item.write(saveFile);
+
+					}
+					System.out.println("帐号：" + foodName + "，头像路径：" + fileName);
+				}
+				shopModel.setAdminid(11); //商户id
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				shopModel.setTime(sdf.format(new Date()));
+				//greensModel.setState("已启用");
+				System.out.println(shopModel.toString());
+				result = shopService.insertShop(shopModel);
+				System.out.println("result"+result);
+			}
+			response.setCharacterEncoding("utf-8");
+			PrintWriter out = response.getWriter();
+			Map<String, String> map = new HashMap<>();
+			List<Map<String, String>> list = new ArrayList<>();
+			if (result > 0) {
+				map.put("msg", "成功");
+				System.out.println("添加成功");
+			}else {
+				map.put("msg", "失败");
+			}
+			
+			list.add(map);
+			String json = JSONArray.fromObject(list).toString();
+			out.print(json);
+			out.flush();
+			out.close();
+
+			return null;
+		}
+
+	@RequestMapping("/authCode")
+	public void getAuthCode(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+			throws IOException {
+		int width = 63;
+		int height = 37;
+		Random random = new Random();
+		// 设置response头信息
+		// 禁止缓存
+		response.setHeader("Pragma", "No-cache");
+		response.setHeader("Cache-Control", "no-cache");
+		response.setDateHeader("Expires", 0);
+
+		// 生成缓冲区image类
+		BufferedImage image = new BufferedImage(width, height, 1);
+		// 产生image类的Graphics用于绘制操作
+		Graphics g = image.getGraphics();
+		// Graphics类的样式
+		g.setColor(this.getRandColor(200, 250));
+		g.setFont(new Font("Times New Roman", 0, 28));
+		g.fillRect(0, 0, width, height);
+		// 绘制干扰线
+		for (int i = 0; i < 40; i++) {
+			g.setColor(this.getRandColor(130, 200));
+			int x = random.nextInt(width);
+			int y = random.nextInt(height);
+			int x1 = random.nextInt(12);
+			int y1 = random.nextInt(12);
+			g.drawLine(x, y, x + x1, y + y1);
+		}
+
+		// 绘制字符
+		String strCode = "";
+		for (int i = 0; i < 4; i++) {
+			String rand = String.valueOf(random.nextInt(10));
+			strCode = strCode + rand;
+			g.setColor(new Color(20 + random.nextInt(110), 20 + random.nextInt(110), 20 + random.nextInt(110)));
+			g.drawString(rand, 13 * i + 6, 28);
+		}
+		// 将字符保存到session中用于前端的验证
+		session.setAttribute("strCode", strCode);
+		g.dispose();
+
+		ImageIO.write(image, "JPEG", response.getOutputStream());
+		response.getOutputStream().flush();
+
+	}
+
+	@ExceptionHandler(Exception.class)
+	public String exception(Exception e, HttpServletRequest request) {
+		e.printStackTrace();
+		request.setAttribute("exception", e);
+		return "/error.jsp";
+	}
+
+	Color getRandColor(int fc, int bc) {
+		Random random = new Random();
+		if (fc > 255)
+			fc = 255;
+		if (bc > 255)
+			bc = 255;
+		int r = fc + random.nextInt(bc - fc);
+		int g = fc + random.nextInt(bc - fc);
+		int b = fc + random.nextInt(bc - fc);
+		return new Color(r, g, b);
+	}
+}

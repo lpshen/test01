@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.LogLoginMapper">
+
+	<insert id="insertLogLogin" parameterType="com.bms.model.LogLoginModel">
+	insert into
+	loglogin(id,userid,username,role,time)values(#{id},#{userid},#{username},#{role},#{time})
+    </insert>
+    
+    <delete id="deleteLogLogin" parameterType="com.bms.model.LogLoginModel">
+     delete from loglogin  where id = #{id}
+  	</delete>
+  	<select id="findAll" resultType="com.bms.model.LogLoginModel">
+  	select * from loglogin order by time desc
+  	</select>
+  	<update id="updateLogLogin" parameterType="com.bms.model.LogLoginModel">
+  	update loglogin set password = #{password} where id = #{id}
+  	</update>
+
+  	<!-- 出入多个参数模糊查询 -->
+  	<select id="listBySearch" resultType="com.bms.model.LogLoginModel" parameterType="java.util.Map">
+  		select * from loglogin where 1 = 1
+  		<if test="username != null">
+  		 and username like '%${username}%'
+  		</if>
+  		<if test="userid != null">
+  		 and userid like '%${userid}%'
+  		</if>
+  		<if test="time != null">
+  		 and time like '%${time}%'
+  		</if>
+  		order by time desc
+  	</select>
+  	<!-- 按条件查询出的条数 -->
+  	<select id="getTotalBySearch" resultType="java.lang.Long" parameterType = "java.util.Map">
+  		select count(*) from LogLogin where 1=1 
+  		<if test="searchType == 'phonenum'">
+  		and phonenum like '%${searchField}%'
+  		</if> 
+  		
+  	</select>
+  	<!-- 查询登录 -->
+  	<select id="findByLogLogin" resultType="com.bms.model.LogLoginModel" parameterType="java.util.Map">
+  	select * from LogLogin where LogLoginname = #{LogLoginname} and password = #{password}
+  	</select>
+  	
+  	<!-- 根据Id查询 -->
+  	<select id="findByUserId" resultType="com.bms.model.LogLoginModel" parameterType="com.bms.model.LogLoginModel">
+  	select * from LogLogin where userId = #{userid}
+  	</select>
+  
+
+  <!-- 
+  <select id="getLogLoginByLogLoginname" parameterType="string" resultType="com.huawei.nser.standard.dao.LogLogin">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_LogLogin where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addLogLogin" parameterType="com.huawei.nser.standard.values.ECLogLoginValue">
+       insert into ec_LogLogin(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setLogLoginPassword" parameterType="com.huawei.nser.standard.dao.LogLogin">
+   　　　update ec_LogLogin set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.bms.mapper.DiningTableMapper">
+<!-- 
+    <select id="list" resultType="com.bms.model.AwardModel">
+    select award_id awardId,award_name awardName,award_time awardTime,user_id userId,user_name userName,state from awards;
+    </select>
+    <insert id="add" parameterType="com.bms.model.AwardModel" >
+    insert into awards (award_id,award_name,award_time,user_id,user_name,state) values(#{awardId},#{awardName},#{awardTime},#{userId},#{userName},#{state});
+    </insert>
+    <select id="listBySearch" resultType="com.bms.model.AwardModel" parameterType="java.util.Map">
+  		select award_id awardId,award_name awardName,award_time awardTime,user_id userId,user_name userName,state from awards where 1 = 1
+  		<if test="userName != null">
+  		 and user_name like '%${userName}%'
+  		</if>
+  		<if test="awardTime != null">
+  		 and award_time like '%${awardTime}%'
+  		</if>
+  		<if test="state != null">
+  		 and state = '${state}'
+  		</if>
+  	</select>
+ -->
+ <insert id="insert" parameterType="com.bms.model.DiningTableModel">
+ 	insert into dining_table (dining_table_id,table_type,table_num,update_time) values(#{diningTableId},#{tableType},#{tableNum},#{updateTime})
+ </insert>
+ <delete id="delete" parameterType="java.util.Map">
+ 	delete from dining_table where dining_table_id = #{diningTableId}
+ </delete>
+ <select id="listBySearch" parameterType ="com.bms.model.DiningTableModel" resultType="java.util.Map">
+ 	select dining_table_id diningTableId,table_type tableType,table_num tableNum,update_time updateTime from dining_table where 1 = 1
+ 	<if test="tableNum != null" >
+		and table_num = ${tableNum} 	
+ 	</if>
+ 	<if test="updateTime != null" >
+		and update_time  like '%${updateTime}%'	
+ 	</if> 
+ 	<if test="tableType != null" >
+		and table_type ='${tableType}'	
+ 	</if> 	
+ </select>
+
+  
+
+  <!-- 
+  <select id="getUserByUsername" parameterType="string" resultType="com.huawei.nser.standard.dao.User">
+     select msisdn,sub_id,pwd password,to_char(active_time,'yyyymmdd') activate_time from ec_user where msisdn=#{msisdn} 
+  </select>
+  
+  
+   <insert id="addUser" parameterType="com.huawei.nser.standard.values.ECUserValue">
+       insert into ec_user(msisdn, sub_id, pwd, active_time,remark) values(#{msisdn}, #{sub_id}, #{pwd}, #{active_time},#{remark})
+  </insert>
+
+  
+   <update id="setUserPassword" parameterType="com.huawei.nser.standard.dao.User">
+   　　　update ec_user set pwd = #{password} where msisdn=#{msisdn}
+  </update>  
+  
+   <delete id="delLogincheck" parameterType="com.huawei.nser.standard.values.LoginCheckPO">
+     delete from ec_sys_logincheck  where login_number = #{login_number} and checktype= #{checktype}
+  </delete>
+  
+  -->
+    
+</mapper>
+

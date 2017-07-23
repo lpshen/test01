@@ -1,0 +1,285 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/easyui/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	$(function(){
+		$('input[name=out_trade_no]').val(new Date().getTime());
+		$('input[name=out_refund_no]').val(new Date().getTime());
+		$('.hideClass').hide();
+		
+		$('input[name=time_start]').val(getCurrentDate()); 
+		$("#YC").hide();
+	});
+	function getCurrentDate(){
+		var date = new Date();
+		return date.getFullYear() + '' + formatString(date.getMonth() + 1) + formatString(date.getDay()) + formatString(date.getHours()) + formatString(date.getMinutes()) + formatString(date.getSeconds()); 
+	}
+	function formatString(value){
+		if(parseInt(value) < 10){
+			return  0 + '' + value; 
+		}
+		return value;
+	}
+	//验证ip
+	function isIP(ip) {  
+	    var reSpaceCheck = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/;  
+	    if (reSpaceCheck.test(ip)) {  
+	        ip.match(reSpaceCheck);  
+	        if (RegExp.$1<=255&&RegExp.$1>=0  
+	          &&RegExp.$2<=255&&RegExp.$2>=0  
+	          &&RegExp.$3<=255&&RegExp.$3>=0  
+	          &&RegExp.$4<=255&&RegExp.$4>=0) {  
+	            return true;   
+	        } else {  
+	            return false;  
+	        }  
+	    } else {  
+	        return false;  
+	    }  
+	}  
+	function doSubmit(){
+		var service = $.trim($('input[name=service]').val());
+		if(service == ''){
+			alert('接口类型不能为空');
+			return false;
+		}
+		var out_trade_no = $.trim($('input[name=out_trade_no]').val());
+		if(out_trade_no == ''){
+			alert('商户订单号不能为空');   
+			return false; 
+		}
+		var body = $.trim($('input[name=body]').val());
+		if(body == ''){
+			alert('商品描述不能为空');
+			return false;
+		}
+		//金额由元换算成分
+		var total_fee_yuan = $.trim($('input[name=total_fee_yuan]').val());
+		var total_fee = total_fee_yuan * 100;
+		$('input[name=total_fee]').val(total_fee);
+		alert("total_fee="+$.trim($('input[name=total_fee]').val()));
+		if(total_fee_yuan == ''){
+			alert('总金额不能为空');
+			return false;
+		}
+		var mch_create_ip = $.trim($('input[name=mch_create_ip]').val());
+		if(mch_create_ip == ''){
+			alert('终端ip不能为空');
+			return false;
+		}
+		if(!isIP(mch_create_ip)){
+			alert("ip格式不正确");
+			return false;
+		}
+		$('#payForm').submit();
+	}
+	function hiden(){
+		$("#TK").hide();
+		$("#XS").show();
+		$("#YC").hide();
+	}
+	function show(){
+		$("#YC").show();
+		$("#XS").hide();
+		$("#TK").show();
+	}
+	</script>
+	<link href="${pageContext.request.contextPath}/jsp/ots/css/style.css" rel="stylesheet" type="text/css" />
+<body>
+<jsp:include  page="head.jsp"/> 
+<div id="main">
+	<div id="left">
+		<jsp:include page="left.jsp"/>
+	</div>
+	<div id="med">
+	<!-- 主要部分 -->
+				
+	<h2>微信扫码账户充值</h2> 
+		<hr>       
+          <form id="payForm" action="${pageContext.request.contextPath}/weChat/pay.do" method="post"  target="_blank">
+            <div id="body" style="clear:left">
+                <dl class="content">
+                    <dt class="hideClass">接口类型：</dt>
+					<dd class="hideClass">
+						<input name="service" value="pay.weixin.native" readonly="readonly" maxlength="32"  placeholder="长度32"/>
+						<span class="null-star">(长度32)*</span>
+						<span></span>
+					</dd>
+					<dt class="hideClass">版本号：</dt>
+					<dd class="hideClass">
+						<span class="null-star"></span>
+						<input size="30" name="version" value="1.0" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+						<span></span>
+					</dd>
+					<dt class="hideClass">字符集：</dt>
+					<dd class="hideClass">
+						<span class="null-star"></span>
+						<input size="30" name="charset" value="UTF-8" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+						<span></span>
+					</dd>
+                    <dt class="hideClass">签名方式：</dt>
+                    <dd class="hideClass">
+                        <span ></span>
+                        <input size="30" name="sign_type" value="MD5" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+                        <span></span>
+                    </dd>
+                    <dd>商户订单号：
+                        <span class="null-star"></span>
+                        <input name="out_trade_no" value="" maxlength="32" size="30" readonly placeholder="长度32"/>
+                        <span class="null-star">(长度32)*</span>
+                        <span></span>
+                    </dd>
+                    
+                    <dd>商品描述：&nbsp; &nbsp;
+                        <span ></span>
+                        <input name="body" value="充值交易" maxlength="127" size="30" readonly placeholder="长度127"/>
+                        <span >(长度127)*</span>
+                        <span></span>
+                    </dd>
+                   
+                    <dd> 附加信息：&nbsp; &nbsp;
+                        <span ></span>
+                        <input name="attach" value="XX酒家充值交易" maxlength="128" size="30" readonly placeholder="长度128"/>
+                        <span>(长度128)</span>
+                        <span></span>
+                    </dd>
+                    <dt class="hideClass">总金额：</dt>
+                    <dd class="hideClass">
+                        <span ></span>
+                        <input name="total_fee"  placeholder="单位：分"/> 
+                        <span >(单位：分 整型)*</span>  
+                        <span></span>
+                    </dd>
+                   
+                    <dd >总金额  ：  &nbsp; &nbsp; &nbsp;
+                        <span ></span>
+                        <input name="total_fee_yuan" value="0.01"  placeholder="单位：元"/> 
+                        <span >(单位：元 整型)*</span>  
+                        <span></span>
+                    </dd>
+                <!--    <dt>终端IP：</dt> --> 
+                    <dd>
+                        <span ></span>
+                        <input type="hidden" name="mch_create_ip" value="127.0.0.1" maxlength="16"  placeholder="长度16"/>
+                <!--        <span >(长度16)*</span>  --> 
+                        <span></span>
+                    </dd>
+                    
+                    <dd>
+                        <span >
+                            <button  type="button" onclick="doSubmit()" style="text-align:center;">确 认</button>
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+		</form>
+		<div id ="XS"><button onclick="show()">显示退款测试</button></div>
+		<div id ="YC"><button onclick="hiden()" >隐藏退款测试</button></div>
+		<hr>
+		<div id="TK" style="display:none;">
+		
+		 <form id="refundForm" action="${pageContext.request.contextPath}/weChat/refund.do" method="post"  target="_blank">
+		
+		 <div id="body" style="clear:left">
+                <dl class="content">
+                    <dt class="hideClass">接口类型：</dt>
+					<dd class="hideClass">
+						<input name="service" value="trade.single.refund" readonly="readonly" maxlength="32"  placeholder="长度32"/>
+						<span class="null-star">(长度32)*</span>
+						<span></span>
+					</dd>
+					<dt class="hideClass">版本号：</dt>
+					<dd class="hideClass">
+						<span class="null-star"></span>
+						<input size="30" name="version" value="1.0" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+						<span></span>
+					</dd>
+					<dt class="hideClass">字符集：</dt>
+					<dd class="hideClass">
+						<span class="null-star"></span>
+						<input size="30" name="charset" value="UTF-8" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+						<span></span>
+					</dd>
+                    <dt class="hideClass">签名方式：</dt>
+                    <dd class="hideClass">
+                        <span class="null-star"></span>
+                        <input size="30" name="sign_type" value="MD5" readonly="readonly" maxlength="8"  placeholder="长度8"/>
+						<span>(长度8)</span>
+                        <span></span>
+                    </dd>
+                    <dt>商户订单号：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <input name="out_trade_no" value="" maxlength="32" size="30"  placeholder="长度32"/>
+                        <span>(长度32)</span>
+                        <span></span>
+                    </dd>
+         <!--           <dt>威富通订单号：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <input name="transaction_id" value="" maxlength="32" size="30"  placeholder="长度32"/>
+                        <span>(长度32)</span>
+                        <span></span>
+                     </dd>
+          -->           <dt>商户退款单号：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <input name="out_refund_no" value="" maxlength="32" size="30"  placeholder="长度32"/>
+                        <span class="null-star">*(长度32)</span>
+                        <span></span>
+                    </dd>
+                    <dt>总金额：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <input name="total_fee" value="1" maxlength="32" size="30"  placeholder="单位：分"/>
+                        <span class="null-star">*(单位：分)</span>
+                        <span></span>
+                    </dd>
+                    <dt>退款金额：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <input name="refund_fee" value="1" maxlength="32" size="30"  placeholder="单位：分"/>
+                        <span class="null-star">*(单位：分)</span>
+                        <span></span>
+                    </dd>
+                    <dt>退款渠道：</dt>
+                    <dd>
+                        <span class="null-star"></span>
+                        <select name=refund_channel>
+                        	<option value="ORIGINAL">原路返回(默认)</option>
+                        	<option value="BALANCE">余额</option>
+                        </select>
+                        <span></span>
+                    </dd>
+                    
+                    <dt></dt>
+                    <dd>
+             <!--           <span class="new-btn-login-sp">
+                            <button class="new-btn-login" type="button" onclick="doSubmit()" style="text-align:center;">确 认</button>
+               -->           </span>
+               <input type="submit" value="提交"> 
+                    </dd>
+                </dl>
+            </div>
+		</form>
+</div>
+	<!-- 主要部分结束 -->
+	</div>
+	<div id="right">
+		<jsp:include page="right.jsp"/>
+	</div>
+</div>
+<jsp:include  page="bottom.jsp"/> 
+</body>
+</html>
